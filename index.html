@@ -1,0 +1,25 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Safety Confirmation System</title>
+  <style>
+    body { font-family: Arial, sans-serif; background-color: #f0f0f0; text-align: center; padding: 50px; }
+    .container { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); display: inline-block; }
+    button { background-color: #28a745; color: white; padding: 10px 20px; font-size: 16px; border: none; border-radius: 5px; cursor: pointer; }
+    button:hover { background-color: #218838; }
+    .timer { font-size: 24px; margin: 20px 0; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Safety Confirmation System</h1>
+    <p>Time remaining to confirm safety:</p>
+    <div class="timer" id="timer">Loading...</div>
+    <button onclick="confirmSafety()">I Am Safe</button>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>
