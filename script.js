@@ -1,6 +1,6 @@
 let lastConfirmed = Date.now();
 let alertSent = false;
-const ALERT_THRESHOLD = 3 * 60 * 60 * 1000; // ✅ 3 hours in milliseconds
+const ALERT_THRESHOLD = 30 * 60 * 600 * 1000; // ✅ 3 hours in milliseconds
 
 function confirmSafety() {
   lastConfirmed = Date.now();
