@@ -1,32 +1,45 @@
 
 let lastConfirmed = Date.now();
 let alertSent = false;
+const ALERT_THRESHOLD = 3 * 60 * 60 * 1000; // 3 hours in ms
 
 function confirmSafety() {
   lastConfirmed = Date.now();
   alertSent = false;
-  alert("Safety confirmed. Timer reset.");
+  showStatus("✅ Safety confirmed!", "green");
 }
 
 function sendEmergencyAlert() {
-  alert("EMERGENCY ALERT: User did not confirm safety!");
-  console.log("Emergency alert triggered!");
+  showStatus("🚨 Emergency! No confirmation received.", "red");
+  console.log("🚨 Emergency alert triggered!");
+  alertSent = true;
+}
+
+function showStatus(message, color) {
+  const status = document.getElementById("statusText");
+  status.innerText = message;
+  status.style.color = color;
+}
+
+function formatTime(ms) {
+  const totalSec = Math.max(0, Math.floor(ms / 1000));
+  const hrs = String(Math.floor(totalSec / 3600)).padStart(2, '0');
+  const mins = String(Math.floor((totalSec % 3600) / 60)).padStart(2, '0');
+  const secs = String(totalSec % 60).padStart(2, '0');
+  return `${hrs}:${mins}:${secs}`;
 }
 
 function updateTimer() {
   const now = Date.now();
-  const diff = Math.floor((now - lastConfirmed) / 1000);
-  const remaining = 3 * 60 * 60 - diff;
+  const timeDiff = now - lastConfirmed;
+  const timeRemaining = ALERT_THRESHOLD - timeDiff;
 
-  if (remaining <= 0 && !alertSent) {
+  // Update timer UI
+  document.getElementById("timer").innerText = formatTime(timeRemaining);
+
+  if (timeRemaining <= 0 && !alertSent) {
     sendEmergencyAlert();
-    alertSent = true;
   }
-
-  const hrs = Math.floor(remaining / 3600);
-  const mins = Math.floor((remaining % 3600) / 60);
-  const secs = remaining % 60;
-  document.getElementById("timer").innerText = `${hrs}h ${mins}m ${secs}s`;
 }
 
 setInterval(updateTimer, 1000);
