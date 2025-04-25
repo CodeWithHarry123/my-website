@@ -11,7 +11,7 @@ const menuBtn = document.getElementById("menu-btn");
 const pipeContainer = document.getElementById("pipe-container");
 
 let birdTop = 200;
-let gravity = 1;
+let gravity = 0.2;
 let velocity = 0;
 let isGameOver = false;
 let isGameStarted = false;
