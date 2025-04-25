@@ -33,7 +33,12 @@ body {
   left: 80px;
   z-index: 3;
 }
-
+#pipe-container {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
 /* Pipes */
 .pipe {
   position: absolute;
