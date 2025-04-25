@@ -78,6 +78,7 @@ function createPipe() {
 
 function gameLoop() {
   if (isGameOver) return;
+
   velocity += gravity;
   let top = parseInt(window.getComputedStyle(bird).top);
   top += velocity;
@@ -112,15 +113,4 @@ function restartGame() {
   pipeContainer.innerHTML = "";
   scoreText.innerText = "Score: 0";
   document.getElementById("highScore").innerText = `High Score: ${localStorage.getItem("flappyHighScore")}`;
-  restartBtn.style.display = "none";
-
-  startGame();
-}
-
-function startGame() {
-  gameLoopInterval = setInterval(gameLoop, 20);
-  pipeInterval = setInterval(createPipe, 2000);
-}
-
-restartBtn.addEventListener("click", restartGame);
-startGame();
+  restartBtn.style.display = 
