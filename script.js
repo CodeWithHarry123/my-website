@@ -1,21 +1,30 @@
 const bird = document.getElementById("bird");
-const game = document.getElementById("game");
-const scoreDisplay = document.getElementById("score");
-
-let birdTop = 200;
-let gravity = 2;
+const scoreText = document.getElementById("score");
+const pipeContainer = document.getElementById("pipe-container");
+const restartBtn = document.getElementById("restartBtn");
+const jumpSound = document.getElementById("jumpSound");
+const hitSound = document.getElementById("hitSound");
+let gravity = 0.7;
+let velocity = 0;
 let isGameOver = false;
 let score = 0;
+let gameLoopInterval;
+let pipeInterval;
+let highScore = localStorage.getItem("flappyHighScore") || 0;
+document.getElementById("highScore").innerText = `High Score: ${highScore}`;
+document.addEventListener("keydown", jump);
+document.addEventListener("click", jump); // mobile tap
 
-document.addEventListener("keydown", () => {
-  if (!isGameOver) birdTop -= 40;
-});
+function jump() {
+  if (!isGameOver) velocity = -10;
+  jumpSound.currentTime = 0;
+jumpSound.play();
+}
 
 function createPipe() {
-  const pipeContainer = document.getElementById("pipe-container");
-  const pipeGap = 150;
-  const pipeTopHeight = Math.floor(Math.random() * 250) + 50;
-  const pipeBottomHeight = 600 - pipeTopHeight - pipeGap;
+  const gap = 150;
+  const pipeTopHeight = Math.floor(Math.random() * 200) + 50;
+  const pipeBottomHeight = 600 - pipeTopHeight - gap;
 
   const pipeTop = document.createElement("div");
   pipeTop.classList.add("pipe", "top");
@@ -30,11 +39,8 @@ function createPipe() {
   pipeContainer.appendChild(pipeTop);
   pipeContainer.appendChild(pipeBottom);
 
-  let move = setInterval(() => {
-    if (isGameOver) {
-      clearInterval(move);
-      return;
-    }
+  const move = setInterval(() => {
+    if (isGameOver) return clearInterval(move);
 
     let left = parseInt(pipeTop.style.left);
     if (left < -60) {
@@ -42,21 +48,20 @@ function createPipe() {
       pipeContainer.removeChild(pipeBottom);
       clearInterval(move);
       score++;
-      scoreDisplay.innerText = `Score: ${score}`;
+      scoreText.innerText = `Score: ${score}`;
     } else {
       pipeTop.style.left = left - 2 + "px";
       pipeBottom.style.left = left - 2 + "px";
 
-      // Collision
       const birdRect = bird.getBoundingClientRect();
-      const pipeTopRect = pipeTop.getBoundingClientRect();
-      const pipeBottomRect = pipeBottom.getBoundingClientRect();
+      const topRect = pipeTop.getBoundingClientRect();
+      const botRect = pipeBottom.getBoundingClientRect();
 
       if (
-        birdRect.right > pipeTopRect.left &&
-        birdRect.left < pipeTopRect.right &&
-        (birdRect.top < pipeTopRect.bottom ||
-         birdRect.bottom > pipeBottomRect.top)
+        birdRect.right > topRect.left &&
+        birdRect.left < topRect.right &&
+        (birdRect.top < topRect.bottom ||
+         birdRect.bottom > botRect.top)
       ) {
         endGame();
       }
@@ -64,21 +69,44 @@ function createPipe() {
   }, 20);
 }
 
+function gameLoop() {
+  if (isGameOver) return;
+  velocity += gravity;
+  let top = parseInt(window.getComputedStyle(bird).top);
+  top += velocity;
+  bird.style.top = `${top}px`;
+
+  if (top > 530 || top < 0) {
+    endGame();
+  }
+}
+
 function endGame() {
+  if (score > highScore) {
+  localStorage.setItem("flappyHighScore", score);
+}
   isGameOver = true;
-  alert("Game Over! Your score: " + score);
+  clearInterval(gameLoopInterval);
+  clearInterval(pipeInterval);
+  restartBtn.style.display = "inline-block";
+  hitSound.play();
+}
+
+function restartGame() {
+  document.getElementById("highScore").innerText = `High Score: ${localStorage.getItem("flappyHighScore")}`;
   location.reload();
 }
 
-function gameLoop() {
-  if (isGameOver) return;
-  birdTop += gravity;
-  if (birdTop > 560) {
-    endGame();
-    return;
-  }
-  bird.style.top = birdTop + "px";
+function startGame() {
+  bird.style.top = "200px";
+  velocity = 0;
+  isGameOver = false;
+  score = 0;
+  scoreText.innerText = "Score: 0";
+  restartBtn.style.display = "none";
+  pipeContainer.innerHTML = "";
+  gameLoopInterval = setInterval(gameLoop, 20);
+  pipeInterval = setInterval(createPipe, 2000);
 }
 
-setInterval(gameLoop, 20);
-setInterval(createPipe, 2000);
+startGame();
