@@ -8,14 +8,14 @@
 </head>
 <body>
   <div id="game">
-  <div id="bird"></div>
-  <div id="pipe-container"></div>
-  <div id="ground"></div>
-</div>
-<h2 id="score">Score: 0</h2>
-<h3 id="highScore">High Score: 0</h3>
-<button id="restartBtn" onclick="restartGame()">Restart</button>
-  </section>
+    <div id="bird"></div>
+    <div id="pipe-container"></div>
+    <div id="ground"></div>
+  </div>
+
+  <h2 id="score">Score: 0</h2>
+  <h3 id="highScore">High Score: 0</h3>
+  <button id="restartBtn">Restart</button>
 
   <!-- Audio -->
   <audio id="jumpSound" src="https://freesound.org/data/previews/337/337049_3232194-lq.mp3" preload="auto"></audio>
@@ -24,8 +24,15 @@
   <!-- Game Script -->
   <script src="script.js"></script>
   <script>
-    // Attach button handler after DOM ready
-    document.getElementById("restartBtn").addEventListener("click", restartGame);
+    // Ensure DOM loaded before binding restart button
+    window.onload = () => {
+      document.getElementById("restartBtn").addEventListener("click", restartGame);
+      if (typeof startGame === "function") {
+        startGame(); // Start game once everything is ready
+      } else {
+        console.error("startGame() function not found");
+      }
+    };
   </script>
 </body>
 </html>
