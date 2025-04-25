@@ -13,14 +13,10 @@ let gameLoopInterval;
 let pipeInterval;
 let highScore = localStorage.getItem("flappyHighScore") || 0;
 
-// Set high score initially
 document.getElementById("highScore").innerText = `High Score: ${highScore}`;
-
-// User Input: Key or Mouse
 document.addEventListener("keydown", jump);
 document.addEventListener("click", jump);
 
-// Bird jump logic
 function jump() {
   if (isGameOver) return;
   velocity = -10;
@@ -30,7 +26,6 @@ function jump() {
   }
 }
 
-// Create pipes
 function createPipe() {
   const gap = 150;
   const pipeTopHeight = Math.floor(Math.random() * 200) + 50;
@@ -49,7 +44,6 @@ function createPipe() {
   pipeContainer.appendChild(pipeTop);
   pipeContainer.appendChild(pipeBottom);
 
-  // Move pipes to left
   const move = setInterval(() => {
     if (isGameOver) {
       clearInterval(move);
@@ -67,7 +61,6 @@ function createPipe() {
       pipeTop.style.left = `${left - 2}px`;
       pipeBottom.style.left = `${left - 2}px`;
 
-      // Collision detection
       const birdRect = bird.getBoundingClientRect();
       const topRect = pipeTop.getBoundingClientRect();
       const botRect = pipeBottom.getBoundingClientRect();
@@ -83,22 +76,18 @@ function createPipe() {
   }, 20);
 }
 
-// Gravity and game loop
 function gameLoop() {
   if (isGameOver) return;
-
   velocity += gravity;
   let top = parseInt(window.getComputedStyle(bird).top);
   top += velocity;
   bird.style.top = `${top}px`;
 
-  // Hit ground or go above
   if (top > 530 || top < 0) {
     endGame();
   }
 }
 
-// Game Over
 function endGame() {
   if (isGameOver) return;
 
@@ -115,7 +104,6 @@ function endGame() {
   if (hitSound) hitSound.play();
 }
 
-// Restart the game
 function restartGame() {
   score = 0;
   velocity = 0;
@@ -129,14 +117,10 @@ function restartGame() {
   startGame();
 }
 
-// Main game start
 function startGame() {
   gameLoopInterval = setInterval(gameLoop, 20);
   pipeInterval = setInterval(createPipe, 2000);
 }
 
-// Restart button event
 restartBtn.addEventListener("click", restartGame);
-
-// Start the game on load
 startGame();
