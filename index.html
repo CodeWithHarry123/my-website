@@ -7,18 +7,27 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div id="game">
+  <main id="game">
     <div id="bird"></div>
     <div id="pipe-container"></div>
     <div id="ground"></div>
-  </div>
-  <h2 id="score">Score: 0</h2>
-  <h3 id="highScore">High Score: 0</h3>
-  <button id="restartBtn" onclick="restartGame()">Restart</button>
+  </main>
 
-  <audio id="jumpSound" src="https://freesound.org/data/previews/337/337049_3232194-lq.mp3"></audio>
-  <audio id="hitSound" src="https://freesound.org/data/previews/466/466273_960389-lq.mp3"></audio>
+  <section>
+    <h2 id="score">Score: 0</h2>
+    <h3 id="highScore">High Score: 0</h3>
+    <button id="restartBtn">Restart</button>
+  </section>
 
+  <!-- Audio -->
+  <audio id="jumpSound" src="https://freesound.org/data/previews/337/337049_3232194-lq.mp3" preload="auto"></audio>
+  <audio id="hitSound" src="https://freesound.org/data/previews/466/466273_960389-lq.mp3" preload="auto"></audio>
+
+  <!-- Game Script -->
   <script src="script.js"></script>
+  <script>
+    // Attach button handler after DOM ready
+    document.getElementById("restartBtn").addEventListener("click", restartGame);
+  </script>
 </body>
 </html>
