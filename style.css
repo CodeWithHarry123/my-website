@@ -1,7 +1,7 @@
 body {
   margin: 0;
   background-color: #70c5ce;
-  font-family: 'Arial', sans-serif;
+  font-family: Arial, sans-serif;
   text-align: center;
   overflow: hidden;
   user-select: none;
@@ -14,7 +14,6 @@ body {
   margin: 20px auto;
   overflow: hidden;
   border: 2px solid #333;
-  background: transparent;
   touch-action: manipulation;
 }
 
@@ -32,7 +31,7 @@ body {
   width: 40px;
   height: 30px;
   background: url('images/flappy.png') no-repeat center center;
-  background-size: 120px 30px;
+  background-size: contain;
   position: absolute;
   top: 200px;
   left: 100px;
@@ -42,12 +41,10 @@ body {
 
 #bird.flap {
   transform: rotate(-20deg);
-  background-position: -40px 0;
 }
 
 #bird.fall {
   transform: rotate(90deg);
-  background-position: -80px 0;
 }
 
 .pipe {
@@ -56,7 +53,6 @@ body {
   background: url('images/Pipe.png') repeat-y;
   background-size: 100%;
   z-index: 2;
-  transition: filter 0.3s;
 }
 
 .pipe.top {
@@ -83,7 +79,6 @@ body {
   position: absolute;
   top: 20px;
   width: 400px;
-  margin: 0 auto;
   left: 50%;
   transform: translateX(-50%);
 }
