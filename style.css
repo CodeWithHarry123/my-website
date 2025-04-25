@@ -12,7 +12,7 @@ body {
   max-width: 400px;
   height: 600px;
   margin: 20px auto;
-  background: url('https://i.ibb.co/tXDyTqS/bg.png') repeat-x;
+  background: url('images/bg.png') repeat-x;
   background-size: cover;
   overflow: hidden;
   border: 2px solid #222;
@@ -22,7 +22,7 @@ body {
 #bird {
   width: 48px;
   height: 48px;
-  background: url('https://upload.wikimedia.org/wikipedia/en/0/0b/Flappy_Bird_icon.png') no-repeat center;
+  background: url('images/bird.png') no-repeat center;
   background-size: contain;
   position: absolute;
   top: 200px;
@@ -32,7 +32,7 @@ body {
 .pipe {
   position: absolute;
   width: 60px;
-  background: url('https://i.ibb.co/XbF6Bz8/pipe.png') repeat-y;
+   background: url('images/pipe.png') repeat-y;
   background-size: cover;
 }
 
@@ -50,7 +50,7 @@ body {
   bottom: 0;
   width: 100%;
   height: 70px;
-  background: url('https://i.ibb.co/vYr7fcX/ground.png') repeat-x;
+  background: url('images/ground.png') repeat-x;
   background-size: cover;
   z-index: 2;
 }
