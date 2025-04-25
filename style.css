@@ -1,44 +1,80 @@
 body {
   margin: 0;
   background-color: #70c5ce;
-  font-family: sans-serif;
+  font-family: 'Segoe UI', sans-serif;
   text-align: center;
+  overflow: hidden;
 }
 
 #game {
   position: relative;
-  width: 400px;
+  width: 100%;
+  max-width: 400px;
   height: 600px;
-  margin: 0 auto;
-  background: #fff;
+  margin: 20px auto;
+  background: url('https://i.ibb.co/tXDyTqS/bg.png') repeat-x;
+  background-size: cover;
   overflow: hidden;
-  border: 2px solid #333;
+  border: 2px solid #222;
+  border-radius: 12px;
 }
 
 #bird {
-  width: 40px;
-  height: 40px;
-  background: yellow;
-  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  background: url('https://i.ibb.co/vYgJNmC/flappy-bird-sprite.png') 0 0 no-repeat;
+  background-size: 144px 48px;
+  animation: flap 0.3s steps(3) infinite;
   position: absolute;
   top: 200px;
-  left: 100px;
+  left: 80px;
+}
+
+@keyframes flap {
+  0% { background-position: 0 0; }
+  100% { background-position: -144px 0; }
 }
 
 .pipe {
   position: absolute;
   width: 60px;
-  background: green;
+  background: url('https://i.ibb.co/XbF6Bz8/pipe.png') repeat-y;
+  background-size: cover;
 }
 
 .pipe.top {
   top: 0;
+  transform: rotate(180deg);
 }
 
 .pipe.bottom {
   bottom: 0;
 }
 
+#ground {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 70px;
+  background: url('https://i.ibb.co/vYr7fcX/ground.png') repeat-x;
+  background-size: cover;
+  z-index: 2;
+}
+
 #score {
+  font-size: 24px;
+  color: #fff;
+  margin-top: -10px;
+}
+
+#restartBtn {
+  padding: 10px 20px;
+  font-size: 18px;
+  border: none;
+  border-radius: 8px;
+  background-color: #ffcc00;
+  color: #222;
+  cursor: pointer;
   margin-top: 10px;
+  display: none;
 }
