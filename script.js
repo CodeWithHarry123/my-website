@@ -49,6 +49,13 @@ function loadInterstitialAd() {
   interstitialAd.dataset.adClient = appId.split("~")[0]; // ca-pub-8555499173736872
   interstitialAd.dataset.adSlot = interstitialAdUnit.split("/")[1]; // 1199556089
   document.body.appendChild(interstitialAd);
+  // Try to pre-load ad
+  try {
+    (adsbygoogle = window.adsbygoogle || []).push({});
+    console.log("Interstitial ad pre-loaded");
+  } catch (e) {
+    console.error("Interstitial ad pre-load error:", e);
+  }
 }
 
 // Load Rewarded Ad
@@ -67,6 +74,13 @@ function loadRewardedAd() {
   rewardedAd.dataset.adClient = appId.split("~")[0]; // ca-pub-8555499173736872
   rewardedAd.dataset.adSlot = rewardedAdUnit.split("/")[1]; // 4396565069
   document.body.appendChild(rewardedAd);
+  // Try to pre-load ad
+  try {
+    (adsbygoogle = window.adsbygoogle || []).push({});
+    console.log("Rewarded ad pre-loaded");
+  } catch (e) {
+    console.error("Rewarded ad pre-load error:", e);
+  }
 }
 
 // Initialize ads on page load
@@ -115,7 +129,7 @@ function createPipe(timestamp) {
   if (!isGameStarted || isGameOver || isPaused) return;
   if (timestamp - lastPipeTime < 2000) return;
 
-  const pipeGap = 200; // Increased from 150 to 200 for easier gameplay
+  const pipeGap = 200; // Kept at 200 for easier gameplay
   const minHeight = 50;
   const maxHeight = 350;
   const pipeTopHeight = Math.floor(Math.random() * (maxHeight - minHeight)) + minHeight;
@@ -165,8 +179,9 @@ function endGame() {
     interstitialAd.style.display = "block";
     try {
       (adsbygoogle = window.adsbygoogle || []).push({});
+      console.log("Interstitial ad displayed");
     } catch (e) {
-      console.error("Interstitial Ad Error:", e);
+      console.error("Interstitial ad display error:", e);
       interstitialAd.style.display = "none";
       gameOverScreen.classList.remove("hidden");
     }
@@ -174,15 +189,17 @@ function endGame() {
       interstitialAd.style.display = "none";
       document.body.removeChild(interstitialAd);
       interstitialAd = null;
-      loadInterstitialAd();
+      loadInterstitialAd(); // Preload next ad
       gameOverScreen.classList.remove("hidden");
+      console.log("Interstitial ad closed");
     }, 5000);
   } else if (outCount === 10 && rewardedAd) {
     rewardedAd.style.display = "block";
     try {
       (adsbygoogle = window.adsbygoogle || []).push({});
+      console.log("Rewarded ad displayed");
     } catch (e) {
-      console.error("Rewarded Ad Error:", e);
+      console.error("Rewarded ad display error:", e);
       rewardedAd.style.display = "none";
       gameOverScreen.classList.remove("hidden");
     }
@@ -190,8 +207,9 @@ function endGame() {
       rewardedAd.style.display = "none";
       document.body.removeChild(rewardedAd);
       rewardedAd = null;
-      loadRewardedAd();
+      loadRewardedAd(); // Preload next ad
       gameOverScreen.classList.remove("hidden");
+      console.log("Rewarded ad closed");
     }, 10000);
   } else {
     gameOverScreen.classList.remove("hidden");
@@ -225,8 +243,8 @@ function gameLoop(timestamp) {
   lastTime = timestamp;
 
   // Update bird
-  velocity += gravity * delta * 20; // Reduced from 30 to 20 for smoother movement
-  birdTop += velocity * delta * 20; // Reduced from 30 to 20
+  velocity += gravity * delta * 20;
+  birdTop += velocity * delta * 20;
   if (birdTop < 0) {
     birdTop = 0;
     velocity = 0;
@@ -261,15 +279,16 @@ function gameLoop(timestamp) {
     const pipeX = left;
     const pipeWidth = 60;
     const topPipeHeight = parseInt(pipe.top.style.height) || 0;
-    const bottomPipeY = 600 - (parseInt(pipe.bottom.style.height) || 0);
+    const bottomPipeY = topPipeHeight + 200; // Use pipeGap = 200 directly
 
+    // Log collision check details
     if (
       birdX + birdWidth > pipeX &&
       birdX < pipeX + pipeWidth &&
       (birdY < topPipeHeight || birdY + birdHeight > bottomPipeY)
     ) {
       console.log(
-        `Game Over: Collision with pipe, birdY=${birdY}, topPipeHeight=${topPipeHeight}, bottomPipeY=${bottomPipeY}`
+        `Game Over: Collision with pipe, birdX=${birdX}, birdY=${birdY}, pipeX=${pipeX}, topPipeHeight=${topPipeHeight}, bottomPipeY=${bottomPipeY}`
       );
       endGame();
       return false;
