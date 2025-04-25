@@ -5,8 +5,7 @@
 }
 
 body {
-  background: url('images/bg.png') no-repeat center center;
-  background-size: cover;
+  background: #70c5ce;
   font-family: sans-serif;
   text-align: center;
 }
@@ -17,8 +16,8 @@ body {
   height: 600px;
   margin: 50px auto;
   overflow: hidden;
-  border: 2px solid #000;
   background-color: #70c5ce;
+  border: 2px solid #000;
 }
 
 #bird {
@@ -29,7 +28,6 @@ body {
   background-size: cover;
   top: 200px;
   left: 50px;
-  z-index: 3;
 }
 
 .pipe {
@@ -37,12 +35,11 @@ body {
   width: 60px;
   background: url('images/pipe.png') no-repeat center;
   background-size: cover;
-  z-index: 2;
 }
 
 .pipe.top {
-  transform: rotate(180deg);
   top: 0;
+  transform: rotate(180deg);
 }
 
 .pipe.bottom {
@@ -56,7 +53,6 @@ body {
   height: 70px;
   background: url('images/ground.png') repeat-x;
   background-size: cover;
-  z-index: 4;
 }
 
 #score, #highScore {
