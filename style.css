@@ -15,6 +15,7 @@ body {
   overflow: hidden;
   border: 2px solid #333;
   touch-action: manipulation;
+  padding-bottom: 50px; /* Space for banner ad */
 }
 
 #background {
@@ -81,7 +82,7 @@ body {
   width: 400px;
   left: 50%;
   transform: translateX(-50%);
-  pointer-events: none; /* Prevent UI from blocking taps */
+  pointer-events: none;
 }
 
 #score, #high-score {
@@ -104,7 +105,7 @@ body {
   justify-content: center;
   align-items: center;
   z-index: 5;
-  pointer-events: auto; /* Allow taps on screens */
+  pointer-events: auto;
 }
 
 .screen h1 {
@@ -147,6 +148,18 @@ body {
   animation: particle-fade 0.5s ease-out forwards;
 }
 
+#banner-ad {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  max-width: 400px;
+  height: 50px;
+  background: transparent;
+  z-index: 6;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
 @keyframes parallax {
   from { background-position: 0 0; }
   to { background-position: -400px 0; }
@@ -168,5 +181,8 @@ body {
   #game, #ui {
     width: 100%;
     max-width: 400px;
+  }
+  #banner-ad {
+    max-width: 100%;
   }
 }
