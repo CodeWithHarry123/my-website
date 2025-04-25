@@ -11,7 +11,7 @@ const menuBtn = document.getElementById("menu-btn");
 const pipeContainer = document.getElementById("pipe-container");
 
 let birdTop = 200;
-let gravity = 0.2;
+let gravity = 0.5; // Reduced gravity for slower fall
 let velocity = 0;
 let isGameOver = false;
 let isGameStarted = false;
@@ -41,7 +41,7 @@ function startGame() {
 function flap() {
   const now = Date.now();
   if (!isGameOver && isGameStarted && !isPaused && now - lastFlapTime > flapCooldown) {
-    velocity = -10;
+    velocity = -7; // Reduced flap strength
     bird.classList.add("flap");
     setTimeout(() => bird.classList.remove("flap"), 100);
     lastFlapTime = now;
@@ -116,7 +116,7 @@ function resetGame() {
   isGameStarted = false;
   isPaused = false;
   pipeSpeed = 2;
-  gravity = 2.5;
+  gravity = 0.5; // Ensure reset includes new gravity
   pipes = [];
   lastPipeTime = 0;
   scoreDisplay.innerText = "Score: 0";
@@ -135,8 +135,8 @@ function gameLoop(timestamp) {
   lastTime = timestamp;
 
   // Update bird
-  velocity += gravity * delta * 60;
-  birdTop += velocity * delta * 60;
+  velocity += gravity * delta * 30; // Adjusted for slower fall
+  birdTop += velocity * delta * 30;
   if (birdTop < 0) {
     birdTop = 0;
     velocity = 0;
@@ -193,7 +193,7 @@ function gameLoop(timestamp) {
       pipe.scored = true;
       if (score % 5 === 0) {
         pipeSpeed += 0.2;
-        gravity += 0.1;
+        gravity += 0.05; // Slower gravity increase
       }
     }
 
