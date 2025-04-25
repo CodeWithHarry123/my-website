@@ -1,44 +1,119 @@
 body {
   margin: 0;
   background-color: #70c5ce;
-  font-family: sans-serif;
+  font-family: Arial, sans-serif;
   text-align: center;
+  overflow: hidden;
 }
 
 #game {
   position: relative;
   width: 400px;
   height: 600px;
-  margin: 0 auto;
-  background: #fff;
+  margin: 20px auto;
   overflow: hidden;
   border: 2px solid #333;
 }
 
+#background {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: url('images/bg.png') no-repeat center center;
+  background-size: cover;
+  z-index: 1;
+}
+
 #bird {
   width: 40px;
-  height: 40px;
-  background: yellow;
-  border-radius: 50%;
+  height: 30px;
+  background: url('images/flappy.png') no-repeat center center;
+  background-size: contain;
   position: absolute;
   top: 200px;
   left: 100px;
+  z-index: 3;
+  transition: transform 0.1s;
+}
+
+#bird.flap {
+  transform: rotate(-20deg);
+}
+
+#bird.fall {
+  transform: rotate(90deg);
 }
 
 .pipe {
   position: absolute;
   width: 60px;
-  background: green;
+  background: url('images/Pipe.png') repeat-y;
+  background-size: contain;
+  z-index: 2;
 }
 
 .pipe.top {
   top: 0;
+  transform: rotate(180deg);
 }
 
 .pipe.bottom {
   bottom: 0;
 }
 
+#ground {
+  position: absolute;
+  width: 100%;
+  height: 100px;
+  bottom: 0;
+  background: url('images/Ground.png') repeat-x;
+  background-size: auto 100%;
+  z-index: 4;
+  animation: move-ground 2s linear infinite;
+}
+
 #score {
   margin-top: 10px;
+  font-size: 24px;
+  color: #fff;
+  text-shadow: 2px 2px 4px #000;
+}
+
+#start-screen {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 5;
+}
+
+#start-screen h1 {
+  font-size: 48px;
+  margin: 0;
+  text-shadow: 2px 2px 4px #000;
+}
+
+#start-screen p {
+  font-size: 24px;
+  margin: 10px 0;
+}
+
+.hidden {
+  display: none;
+}
+
+@keyframes move-ground {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: -400px 0;
+  }
 }
