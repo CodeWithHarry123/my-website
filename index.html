@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Flappy Bird Ultra</title>
   <link rel="stylesheet" href="style.css" />
+  <!-- AdMob SDK -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-app-pub-8555499173736872~3458887913"
+          crossorigin="anonymous"></script>
 </head>
 <body>
   <div id="game">
@@ -31,6 +34,17 @@
     <h1>Paused</h1>
     <p>Press Space, Click, or Tap to Resume</p>
   </div>
+  <!-- Banner Ad Container -->
+  <div id="banner-ad" style="position: absolute; bottom: 0; width: 100%; text-align: center; z-index: 6;">
+    <ins class="adsbygoogle"
+         style="display:inline-block;width:320px;height:50px"
+         data-ad-client="ca-app-pub-8555499173736872~3458887913"
+         data-ad-slot="ca-app-pub-8555499173736872/5469957679"></ins>
+  </div>
   <script src="script.js"></script>
+  <!-- Initialize Banner Ad -->
+  <script>
+    (adsbygoogle = window.adsbygoogle || []).push({});
+  </script>
 </body>
 </html>
