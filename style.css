@@ -29,11 +29,6 @@ body {
   left: 80px;
 }
 
-@keyframes flap {
-  0% { background-position: 0 0; }
-  100% { background-position: -144px 0; }
-}
-
 .pipe {
   position: absolute;
   width: 60px;
@@ -64,6 +59,12 @@ body {
   font-size: 24px;
   color: #fff;
   margin-top: -10px;
+}
+
+#highScore {
+  font-size: 20px;
+  color: #fff;
+  margin-top: 5px;
 }
 
 #restartBtn {
