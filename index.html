@@ -2,114 +2,16 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Safety Confirmation System</title>
-  <style>
-    :root {
-      --primary-color: #28a745;
-      --hover-color: #218838;
-      --bg-color: #f0f2f5;
-      --container-bg: #ffffff;
-    }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: var(--bg-color);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
-
-    .container {
-      background: var(--container-bg);
-      padding: 30px;
-      border-radius: 15px;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-      text-align: center;
-      width: 90%;
-      max-width: 400px;
-    }
-
-    h1 {
-      font-size: 24px;
-      margin-bottom: 15px;
-    }
-
-    .timer {
-      font-size: 32px;
-      color: #333;
-      margin: 20px 0;
-    }
-
-    .status {
-      font-size: 18px;
-      margin: 10px 0;
-      color: #555;
-    }
-
-    button {
-      background-color: var(--primary-color);
-      color: white;
-      padding: 12px 25px;
-      font-size: 16px;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-    }
-
-    button:hover {
-      background-color: var(--hover-color);
-    }
-  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Flappy Bird Clone</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div class="container">
-    <h1>SAFETY CONFIRMATION SYSTEM</h1>
-    <p>Time remaining to confirm safety:</p>
-    <div class="timer" id="timer">--:--</div>
-    <button onclick="confirmSafety()">I Am Safe</button>
-    <p class="status" id="statusText"></p>
+  <div id="game">
+    <div id="bird"></div>
+    <div id="pipe-container"></div>
   </div>
-
-  <script>
-    let countdown = 6000; // seconds
-    const timerDisplay = document.getElementById('timer');
-    const statusText = document.getElementById('statusText');
-    const button = document.querySelector("button");
-
-    function updateTimer() {
-      const mins = String(Math.floor(countdown / 60)).padStart(2, '0');
-      const secs = String(countdown % 60).padStart(2, '0');
-      timerDisplay.textContent = `${mins}:${secs}`;
-      if (countdown > 0) {
-        countdown--;
-      } else {
-        clearInterval(timerInterval);
-        statusText.textContent = "⏰ Time's up!";
-        button.disabled = true;
-        button.style.backgroundColor = '#ccc';
-        button.style.cursor = 'not-allowed';
-      }
-    }
-
-    function confirmSafety() {
-      clearInterval(timerInterval);
-      statusText.textContent = "✅ Safety Confirmed!";
-      button.disabled = true;
-      button.style.backgroundColor = '#ccc';
-      button.style.cursor = 'not-allowed';
-    }
-
-    updateTimer();
-    const timerInterval = setInterval(updateTimer, 1000);
-  </script>
+  <h2 id="score">Score: 0</h2>
+  <script src="script.js"></script>
 </body>
 </html>
