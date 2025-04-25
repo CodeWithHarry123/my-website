@@ -13,16 +13,24 @@ let gameLoopInterval;
 let pipeInterval;
 let highScore = localStorage.getItem("flappyHighScore") || 0;
 
+// Set high score initially
 document.getElementById("highScore").innerText = `High Score: ${highScore}`;
+
+// User Input: Key or Mouse
 document.addEventListener("keydown", jump);
 document.addEventListener("click", jump);
 
+// Bird jump logic
 function jump() {
-  if (!isGameOver) velocity = -10;
-  jumpSound.currentTime = 0;
-  jumpSound.play();
+  if (isGameOver) return;
+  velocity = -10;
+  if (jumpSound) {
+    jumpSound.currentTime = 0;
+    jumpSound.play();
+  }
 }
 
+// Create pipes
 function createPipe() {
   const gap = 150;
   const pipeTopHeight = Math.floor(Math.random() * 200) + 50;
@@ -30,19 +38,23 @@ function createPipe() {
 
   const pipeTop = document.createElement("div");
   pipeTop.classList.add("pipe", "top");
-  pipeTop.style.height = pipeTopHeight + "px";
+  pipeTop.style.height = `${pipeTopHeight}px`;
   pipeTop.style.left = "400px";
 
   const pipeBottom = document.createElement("div");
   pipeBottom.classList.add("pipe", "bottom");
-  pipeBottom.style.height = pipeBottomHeight + "px";
+  pipeBottom.style.height = `${pipeBottomHeight}px`;
   pipeBottom.style.left = "400px";
 
   pipeContainer.appendChild(pipeTop);
   pipeContainer.appendChild(pipeBottom);
 
+  // Move pipes to left
   const move = setInterval(() => {
-    if (isGameOver) return clearInterval(move);
+    if (isGameOver) {
+      clearInterval(move);
+      return;
+    }
 
     let left = parseInt(pipeTop.style.left);
     if (left < -60) {
@@ -52,9 +64,10 @@ function createPipe() {
       score++;
       scoreText.innerText = `Score: ${score}`;
     } else {
-      pipeTop.style.left = left - 2 + "px";
-      pipeBottom.style.left = left - 2 + "px";
+      pipeTop.style.left = `${left - 2}px`;
+      pipeBottom.style.left = `${left - 2}px`;
 
+      // Collision detection
       const birdRect = bird.getBoundingClientRect();
       const topRect = pipeTop.getBoundingClientRect();
       const botRect = pipeBottom.getBoundingClientRect();
@@ -70,44 +83,60 @@ function createPipe() {
   }, 20);
 }
 
+// Gravity and game loop
 function gameLoop() {
   if (isGameOver) return;
+
   velocity += gravity;
   let top = parseInt(window.getComputedStyle(bird).top);
   top += velocity;
   bird.style.top = `${top}px`;
 
+  // Hit ground or go above
   if (top > 530 || top < 0) {
     endGame();
   }
 }
 
+// Game Over
 function endGame() {
+  if (isGameOver) return;
+
   if (score > highScore) {
-    localStorage.setItem("flappyHighScore", score);
+    highScore = score;
+    localStorage.setItem("flappyHighScore", highScore);
   }
+
   isGameOver = true;
   clearInterval(gameLoopInterval);
   clearInterval(pipeInterval);
   restartBtn.style.display = "inline-block";
-  hitSound.play();
+
+  if (hitSound) hitSound.play();
 }
 
+// Restart the game
 function restartGame() {
-  document.getElementById("highScore").innerText = `High Score: ${localStorage.getItem("flappyHighScore")}`;
-  location.reload();
-}
-
-function startGame() {
-  bird.style.top = "200px";
+  score = 0;
   velocity = 0;
   isGameOver = false;
-  score = 0;
-  scoreText.innerText = "Score: 0";
-  restartBtn.style.display = "none";
+  bird.style.top = "200px";
   pipeContainer.innerHTML = "";
+  scoreText.innerText = "Score: 0";
+  document.getElementById("highScore").innerText = `High Score: ${localStorage.getItem("flappyHighScore")}`;
+  restartBtn.style.display = "none";
+
+  startGame();
+}
+
+// Main game start
+function startGame() {
   gameLoopInterval = setInterval(gameLoop, 20);
   pipeInterval = setInterval(createPipe, 2000);
 }
 
+// Restart button event
+restartBtn.addEventListener("click", restartGame);
+
+// Start the game on load
 startGame();
