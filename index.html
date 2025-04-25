@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Flappy Bird Clone</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>Flappy Bird Ultra</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -13,10 +13,23 @@
     <div id="pipe-container"></div>
     <div id="ground"></div>
   </div>
-  <h2 id="score">Score: 0</h2>
-  <div id="start-screen">
-    <h1></h1>
-    <p></p>
+  <div id="ui">
+    <h2 id="score">Score: 0</h2>
+    <h3 id="high-score">High Score: 0</h3>
+  </div>
+  <div id="start-screen" class="screen">
+    <h1>Flappy Bird Ultra</h1>
+    <p>Press Space, Click, or Tap to Start</p>
+  </div>
+  <div id="game-over-screen" class="screen hidden">
+    <h1>Game Over</h1>
+    <p id="final-score">Score: 0</p>
+    <button id="retry-btn">Retry</button>
+    <button id="menu-btn">Main Menu</button>
+  </div>
+  <div id="pause-screen" class="screen hidden">
+    <h1>Paused</h1>
+    <p>Press Space, Click, or Tap to Resume</p>
   </div>
   <script src="script.js"></script>
 </body>
