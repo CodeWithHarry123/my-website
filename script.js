@@ -23,7 +23,7 @@ let lastTime = 0;
 let lastPipeTime = 0;
 let pipes = [];
 let lastFlapTime = 0;
-const flapCooldown = 150; // Reduced for mobile responsiveness
+const flapCooldown = 150;
 
 highScoreDisplay.innerText = `High Score: ${highScore}`;
 
@@ -211,24 +211,34 @@ function handleInput(e) {
   else flap();
 }
 
-// Desktop
+// Desktop and Mobile: Game and screen interactions
 document.addEventListener("keydown", (e) => {
   if (e.code === "Space") handleInput(e);
   if (e.code === "KeyP") pauseGame();
 });
 game.addEventListener("click", handleInput);
-
-// Mobile
 game.addEventListener("touchstart", handleInput);
+startScreen.addEventListener("click", handleInput);
 startScreen.addEventListener("touchstart", handleInput);
+pauseScreen.addEventListener("click", handleInput);
 pauseScreen.addEventListener("touchstart", handleInput);
+gameOverScreen.addEventListener("click", (e) => {
+  // Only trigger if not clicking buttons
+  if (!e.target.closest("button")) handleInput(e);
+});
 gameOverScreen.addEventListener("touchstart", (e) => {
   e.preventDefault();
-  // Only trigger if tapping outside buttons
+  // Only trigger if not tapping buttons
   if (!e.target.closest("button")) handleInput(e);
 });
 
-// Button clicks
-retryBtn.addEventListener("click", resetGame);
-menuBtn.addEventListener("click", resetGame);
+// Button interactions
+function handleButtonClick(e) {
+  e.preventDefault();
+  resetGame();
+}
+retryBtn.addEventListener("click", handleButtonClick);
+retryBtn.addEventListener("touchstart", handleButtonClick);
+menuBtn.addEventListener("click", handleButtonClick);
+menuBtn.addEventListener("touchstart", handleButtonClick);
   
