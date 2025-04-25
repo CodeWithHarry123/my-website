@@ -22,7 +22,7 @@ body {
 #bird {
   width: 48px;
   height: 48px;
-  background: url('https://i.ibb.co/vYgJNmC/flappy-bird-sprite.png') 0 0 no-repeat;
+ background: url('https://raw.githubusercontent.com/sourabhv/FlapPyBird/master/assets/sprites/bird-midflap.png') no-repeat center;
   background-size: 144px 48px;
   animation: flap 0.3s steps(3) infinite;
   position: absolute;
