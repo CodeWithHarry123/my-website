@@ -4,6 +4,7 @@ const pipeContainer = document.getElementById("pipe-container");
 const restartBtn = document.getElementById("restartBtn");
 const jumpSound = document.getElementById("jumpSound");
 const hitSound = document.getElementById("hitSound");
+
 let gravity = 0.7;
 let velocity = 0;
 let isGameOver = false;
@@ -11,14 +12,15 @@ let score = 0;
 let gameLoopInterval;
 let pipeInterval;
 let highScore = localStorage.getItem("flappyHighScore") || 0;
+
 document.getElementById("highScore").innerText = `High Score: ${highScore}`;
 document.addEventListener("keydown", jump);
-document.addEventListener("click", jump); // mobile tap
+document.addEventListener("click", jump);
 
 function jump() {
   if (!isGameOver) velocity = -10;
   jumpSound.currentTime = 0;
-jumpSound.play();
+  jumpSound.play();
 }
 
 function createPipe() {
@@ -60,8 +62,7 @@ function createPipe() {
       if (
         birdRect.right > topRect.left &&
         birdRect.left < topRect.right &&
-        (birdRect.top < topRect.bottom ||
-         birdRect.bottom > botRect.top)
+        (birdRect.top < topRect.bottom || birdRect.bottom > botRect.top)
       ) {
         endGame();
       }
@@ -83,8 +84,8 @@ function gameLoop() {
 
 function endGame() {
   if (score > highScore) {
-  localStorage.setItem("flappyHighScore", score);
-}
+    localStorage.setItem("flappyHighScore", score);
+  }
   isGameOver = true;
   clearInterval(gameLoopInterval);
   clearInterval(pipeInterval);
