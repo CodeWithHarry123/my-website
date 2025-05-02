@@ -107,7 +107,7 @@ function endGame() {
   createParticles(120, birdTop + 15);
   finalScoreDisplay.innerText = `Score: ${score}`;
   outCount++;
-  console.log(`Game Over: Score $score=${score}, birdTop=${birdTop}, outCount=${outCount}`);
+  console.log(`Game Over: Score=${score}, birdTop=${birdTop}, outCount=${outCount}`);
   gameOverScreen.classList.remove("hidden");
 }
 
@@ -144,7 +144,7 @@ function gameLoop(timestamp) {
     birdTop = 0;
     velocity = 0;
   }
-  if (birdTop > 500) {
+  if (birdTop > 570) { // Adjusted for canvas height (600px) minus bird height (~30px)
     console.log("Game Over: Bird hit ground, birdTop=", birdTop);
     endGame();
     return;
@@ -176,12 +176,13 @@ function gameLoop(timestamp) {
     const topPipeHeight = parseInt(pipe.top.style.height) || 0;
     const bottomPipeY = topPipeHeight + 200; // Use pipeGap = 200 directly
 
-    const collisionBuffer = 5; // Collision buffer for leniency
+    const collisionBuffer = 8; // Increased buffer for more forgiving collisions
+    const verticalBuffer = 10; // Added vertical leniency for pipe edges
 
     if (
       birdX + birdWidth > pipeX - collisionBuffer &&
       birdX < pipeX + pipeWidth + collisionBuffer &&
-      (birdY < topPipeHeight + collisionBuffer || birdY + birdHeight > bottomPipeY - collisionBuffer)
+      (birdY < topPipeHeight - verticalBuffer || birdY + birdHeight > bottomPipeY + verticalBuffer)
     ) {
       console.log(
         `Game Over: Collision with pipe\nBird Position: birdX=${birdX}, birdY=${birdY}, birdWidth=${birdWidth}, birdHeight=${birdHeight}\nPipe Position: pipeX=${pipeX}, topPipeHeight=${topPipeHeight}, bottomPipeY=${bottomPipeY}`
