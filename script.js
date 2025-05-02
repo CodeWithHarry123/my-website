@@ -11,7 +11,7 @@ const menuBtn = document.getElementById("menu-btn");
 const pipeContainer = document.getElementById("pipe-container");
 
 let birdTop = 200;
-let gravity = 0.2;
+let gravity = 0.5;
 let velocity = 0;
 let isGameOver = false;
 let isGameStarted = false;
@@ -23,7 +23,7 @@ let lastTime = 0;
 let lastPipeTime = 0;
 let pipes = [];
 let lastFlapTime = 0;
-const flapCooldown = 200; // Prevent rapid flapping (ms)
+const flapCooldown = 150; // Reduced for mobile responsiveness
 
 highScoreDisplay.innerText = `High Score: ${highScore}`;
 
@@ -41,7 +41,7 @@ function startGame() {
 function flap() {
   const now = Date.now();
   if (!isGameOver && isGameStarted && !isPaused && now - lastFlapTime > flapCooldown) {
-    velocity = -10;
+    velocity = -7;
     bird.classList.add("flap");
     setTimeout(() => bird.classList.remove("flap"), 100);
     lastFlapTime = now;
@@ -103,7 +103,7 @@ function createParticles(x, y) {
 function endGame() {
   isGameOver = true;
   bird.classList.add("fall");
-  createParticles(120, birdTop + 15); // Relative to game container
+  createParticles(120, birdTop + 15);
   finalScoreDisplay.innerText = `Score: ${score}`;
   gameOverScreen.classList.remove("hidden");
 }
@@ -116,7 +116,7 @@ function resetGame() {
   isGameStarted = false;
   isPaused = false;
   pipeSpeed = 2;
-  gravity = 2.5;
+  gravity = 0.5;
   pipes = [];
   lastPipeTime = 0;
   scoreDisplay.innerText = "Score: 0";
@@ -135,13 +135,13 @@ function gameLoop(timestamp) {
   lastTime = timestamp;
 
   // Update bird
-  velocity += gravity * delta * 60;
-  birdTop += velocity * delta * 60;
+  velocity += gravity * delta * 30;
+  birdTop += velocity * delta * 30;
   if (birdTop < 0) {
     birdTop = 0;
     velocity = 0;
   }
-  if (birdTop > 470) { // Ground collision (600 - 100 ground - 30 bird)
+  if (birdTop > 470) {
     endGame();
     return;
   }
@@ -162,7 +162,7 @@ function gameLoop(timestamp) {
     pipe.top.style.left = left + "px";
     pipe.bottom.style.left = left + "px";
 
-    // Collision detection (relative to game container)
+    // Collision detection
     const birdX = 100;
     const birdY = birdTop;
     const birdWidth = 40;
@@ -193,7 +193,7 @@ function gameLoop(timestamp) {
       pipe.scored = true;
       if (score % 5 === 0) {
         pipeSpeed += 0.2;
-        gravity += 0.1;
+        gravity += 0.05;
       }
     }
 
@@ -204,29 +204,31 @@ function gameLoop(timestamp) {
 }
 
 // Event Listeners
-document.addEventListener("keydown", (e) => {
-  if (e.code === "Space") {
-    if (!isGameStarted) startGame();
-    else if (isPaused) pauseGame();
-    else flap();
-  }
-  if (e.code === "KeyP") pauseGame();
-});
-
-game.addEventListener("click", () => {
-  if (!isGameStarted) startGame();
-  else if (isPaused) pauseGame();
-  else flap();
-});
-
-game.addEventListener("touchstart", (e) => {
+function handleInput(e) {
   e.preventDefault();
   if (!isGameStarted) startGame();
   else if (isPaused) pauseGame();
   else flap();
+}
+
+// Desktop
+document.addEventListener("keydown", (e) => {
+  if (e.code === "Space") handleInput(e);
+  if (e.code === "KeyP") pauseGame();
+});
+game.addEventListener("click", handleInput);
+
+// Mobile
+game.addEventListener("touchstart", handleInput);
+startScreen.addEventListener("touchstart", handleInput);
+pauseScreen.addEventListener("touchstart", handleInput);
+gameOverScreen.addEventListener("touchstart", (e) => {
+  e.preventDefault();
+  // Only trigger if tapping outside buttons
+  if (!e.target.closest("button")) handleInput(e);
 });
 
+// Button clicks
 retryBtn.addEventListener("click", resetGame);
 menuBtn.addEventListener("click", resetGame);
-  
   
