@@ -13,10 +13,14 @@ let gameLoopInterval;
 let pipeInterval;
 let highScore = localStorage.getItem("flappyHighScore") || 0;
 
+// Set high score initially
 document.getElementById("highScore").innerText = `High Score: ${highScore}`;
+
+// User Input: Key or Mouse
 document.addEventListener("keydown", jump);
 document.addEventListener("click", jump);
 
+// Bird jump logic
 function jump() {
   if (isGameOver) return;
   velocity = -10;
@@ -26,6 +30,7 @@ function jump() {
   }
 }
 
+// Create pipes
 function createPipe() {
   const gap = 150;
   const pipeTopHeight = Math.floor(Math.random() * 200) + 50;
@@ -90,8 +95,6 @@ function gameLoop() {
 }
 
 function endGame() {
-  if (isGameOver) return;
-
   if (score > highScore) {
     highScore = score;
     localStorage.setItem("flappyHighScore", highScore);
@@ -113,4 +116,16 @@ function restartGame() {
   pipeContainer.innerHTML = "";
   scoreText.innerText = "Score: 0";
   document.getElementById("highScore").innerText = `High Score: ${localStorage.getItem("flappyHighScore")}`;
-  restartBtn.style.display = 
+  restartBtn.style.display = "none";
+
+  startGame();
+}
+
+// Main game start
+function startGame() {
+  gameLoopInterval = setInterval(gameLoop, 20);
+  pipeInterval = setInterval(createPipe, 2000);
+}
+
+// Start the game on load
+startGame();
