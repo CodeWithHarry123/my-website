@@ -5,8 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Flappy Bird Ultra</title>
   <link rel="stylesheet" href="style.css" />
+  
+  <!-- AdMob SDK -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-app-pub-8555499173736872~3458887913"
+          crossorigin="anonymous"></script>
 
-  <!-- ✅ AdSense Global Script (Web ke liye) -->
+  <!-- ✅ Google AdSense (ca-pub-7743589417689476) -->
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7743589417689476"
           crossorigin="anonymous"></script>
 </head>
@@ -17,41 +21,46 @@
     <div id="pipe-container"></div>
     <div id="ground"></div>
   </div>
-
   <div id="ui">
     <h2 id="score">Score: 0</h2>
     <h3 id="high-score">High Score: 0</h3>
   </div>
-
   <div id="start-screen" class="screen">
     <h1>Flappy Bird Ultra</h1>
     <p>Press Space, Click, or Tap to Start</p>
   </div>
-
   <div id="game-over-screen" class="screen hidden">
     <h1>Game Over</h1>
     <p id="final-score">Score: 0</p>
     <button id="retry-btn">Retry</button>
     <button id="menu-btn">Main Menu</button>
   </div>
-
   <div id="pause-screen" class="screen hidden">
     <h1>Paused</h1>
     <p>Press Space, Click, or Tap to Resume</p>
   </div>
 
-  <!-- ✅ Banner Ad (Bottom Center) -->
-  <div id="banner-ad" style="position: fixed; bottom: 0; width: 100%; text-align: center; z-index: 10;">
+  <!-- 🟡 Existing Banner Ad -->
+  <div id="banner-ad" style="position: absolute; bottom: 0; width: 100%; text-align: center; z-index: 6;">
     <ins class="adsbygoogle"
          style="display:inline-block;width:320px;height:50px"
+         data-ad-client="ca-app-pub-8555499173736872"
+         data-ad-slot="ca-app-pub-5469957679"></ins>
+  </div>
+
+  <!-- 🟢 NEW Ad Block (200x60) -->
+  <div style="position: absolute; top: 10px; right: 10px; z-index: 10;">
+    <ins class="adsbygoogle"
+         style="display:inline-block;width:200px;height:60px"
          data-ad-client="ca-pub-7743589417689476"
-         data-ad-slot="1234567890"></ins> <!-- 🔁 Replace with your real ad-slot -->
+         data-ad-slot="3177910219"></ins>
   </div>
 
   <script src="script.js"></script>
 
-  <!-- ✅ Initialize Ad -->
+  <!-- Initialize Both Ad Blocks -->
   <script>
+    (adsbygoogle = window.adsbygoogle || []).push({});
     (adsbygoogle = window.adsbygoogle || []).push({});
   </script>
 </body>
