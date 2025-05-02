@@ -28,53 +28,6 @@ let outCount = 0; // Track number of times player dies
 
 highScoreDisplay.innerText = `High Score: ${highScore}`;
 
-// AdMob Ad Unit IDs (Your provided IDs)
-const interstitialAdUnit = "ca-app-pub-8555499173736872/1199556089"; // Interstitial Ad Unit ID
-const rewardedAdUnit = "ca-app-pub-8555499173736872/4396565069"; // Rewarded Ad Unit ID
-const appId = "ca-app-pub-8555499173736872~3458887913"; // Your App ID (replace with your actual App ID)
-
-// Load Interstitial Ad
-let interstitialAd = null;
-function loadInterstitialAd() {
-  interstitialAd = document.createElement("ins");
-  interstitialAd.className = "adsbygoogle";
-  interstitialAd.style.display = "none";
-  interstitialAd.style.position = "fixed";
-  interstitialAd.style.top = "0";
-  interstitialAd.style.left = "0";
-  interstitialAd.style.width = "100%";
-  interstitialAd.style.height = "100%";
-  interstitialAd.style.zIndex = "10";
-  interstitialAd.dataset.adFormat = "fluid";
-  interstitialAd.dataset.adClient = appId;
-  interstitialAd.dataset.adSlot = interstitialAdUnit.split("/")[1];
-  document.body.appendChild(interstitialAd);
-}
-
-// Load Rewarded Ad
-let rewardedAd = null;
-function loadRewardedAd() {
-  rewardedAd = document.createElement("ins");
-  rewardedAd.className = "adsbygoogle";
-  rewardedAd.style.display = "none";
-  rewardedAd.style.position = "fixed";
-  rewardedAd.style.top = "0";
-  rewardedAd.style.left = "0";
-  rewardedAd.style.width = "100%";
-  rewardedAd.style.height = "100%";
-  rewardedAd.style.zIndex = "10";
-  rewardedAd.dataset.adFormat = "reward";
-  rewardedAd.dataset.adClient = appId;
-  rewardedAd.dataset.adSlot = rewardedAdUnit.split("/")[1];
-  document.body.appendChild(rewardedAd);
-}
-
-// Initialize ads on page load
-document.addEventListener("DOMContentLoaded", function () {
-  loadInterstitialAd();
-  loadRewardedAd();
-});
-
 function startGame() {
   if (!isGameStarted) {
     isGameStarted = true;
@@ -111,7 +64,7 @@ function createPipe(timestamp) {
   if (!isGameStarted || isGameOver || isPaused) return;
   if (timestamp - lastPipeTime < 2000) return;
 
-  const pipeGap = 150;
+  const pipeGap = 200; // Kept at 200 for easier gameplay
   const minHeight = 50;
   const maxHeight = 350;
   const pipeTopHeight = Math.floor(Math.random() * (maxHeight - minHeight)) + minHeight;
@@ -153,44 +106,9 @@ function endGame() {
   bird.classList.add("fall");
   createParticles(120, birdTop + 15);
   finalScoreDisplay.innerText = `Score: ${score}`;
-  outCount++; // Increment out counter
-
-  // Show ads based on out count
-  if (outCount === 4 && interstitialAd) {
-    // Show 5-second interstitial ad
-    interstitialAd.style.display = "block";
-    try {
-      (adsbygoogle = window.adsbygoogle || []).push({});
-    } catch (e) {
-      console.error("Interstitial Ad Error:", e);
-      interstitialAd.style.display = "none";
-      gameOverScreen.classList.remove("hidden");
-    }
-    setTimeout(() => {
-      interstitialAd.style.display = "none";
-      document.body.removeChild(interstitialAd);
-      loadInterstitialAd(); // Preload next ad
-      gameOverScreen.classList.remove("hidden");
-    }, 5000); // 5 seconds
-  } else if (outCount === 10 && rewardedAd) {
-    // Show rewarded ad (skippable after 10 seconds)
-    rewardedAd.style.display = "block";
-    try {
-      (adsbygoogle = window.adsbygoogle || []).push({});
-    } catch (e) {
-      console.error("Rewarded Ad Error:", e);
-      rewardedAd.style.display = "none";
-      gameOverScreen.classList.remove("hidden");
-    }
-    setTimeout(() => {
-      rewardedAd.style.display = "none";
-      document.body.removeChild(rewardedAd);
-      loadRewardedAd(); // Preload next ad
-      gameOverScreen.classList.remove("hidden");
-    }, 10000); // 10 seconds
-  } else {
-    gameOverScreen.classList.remove("hidden");
-  }
+  outCount++;
+  console.log(`Game Over: Score $score=${score}, birdTop=${birdTop}, outCount=${outCount}`);
+  gameOverScreen.classList.remove("hidden");
 }
 
 function resetGame() {
@@ -220,13 +138,14 @@ function gameLoop(timestamp) {
   lastTime = timestamp;
 
   // Update bird
-  velocity += gravity * delta * 30;
-  birdTop += velocity * delta * 30;
+  velocity += gravity * delta * 20;
+  birdTop += velocity * delta * 20;
   if (birdTop < 0) {
     birdTop = 0;
     velocity = 0;
   }
   if (birdTop > 470) {
+    console.log("Game Over: Bird hit ground, birdTop=", birdTop);
     endGame();
     return;
   }
@@ -254,14 +173,19 @@ function gameLoop(timestamp) {
     const birdHeight = 30;
     const pipeX = left;
     const pipeWidth = 60;
-    const topPipeHeight = parseInt(pipe.top.style.height);
-    const bottomPipeY = 600 - parseInt(pipe.bottom.style.height);
+    const topPipeHeight = parseInt(pipe.top.style.height) || 0;
+    const bottomPipeY = topPipeHeight + 200; // Use pipeGap = 200 directly
+
+    const collisionBuffer = 5; // Collision buffer for leniency
 
     if (
-      birdX + birdWidth > pipeX &&
-      birdX < pipeX + pipeWidth &&
-      (birdY < topPipeHeight || birdY + birdHeight > bottomPipeY)
+      birdX + birdWidth > pipeX - collisionBuffer &&
+      birdX < pipeX + pipeWidth + collisionBuffer &&
+      (birdY < topPipeHeight + collisionBuffer || birdY + birdHeight > bottomPipeY - collisionBuffer)
     ) {
+      console.log(
+        `Game Over: Collision with pipe\nBird Position: birdX=${birdX}, birdY=${birdY}, birdWidth=${birdWidth}, birdHeight=${birdHeight}\nPipe Position: pipeX=${pipeX}, topPipeHeight=${topPipeHeight}, bottomPipeY=${bottomPipeY}`
+      );
       endGame();
       return false;
     }
@@ -308,12 +232,10 @@ startScreen.addEventListener("touchstart", handleInput);
 pauseScreen.addEventListener("click", handleInput);
 pauseScreen.addEventListener("touchstart", handleInput);
 gameOverScreen.addEventListener("click", (e) => {
-  // Only trigger if not clicking buttons
   if (!e.target.closest("button")) handleInput(e);
 });
 gameOverScreen.addEventListener("touchstart", (e) => {
   e.preventDefault();
-  // Only trigger if not tapping buttons
   if (!e.target.closest("button")) handleInput(e);
 });
 
