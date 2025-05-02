@@ -144,7 +144,7 @@ function gameLoop(timestamp) {
     birdTop = 0;
     velocity = 0;
   }
-  if (birdTop > 470) {
+  if (birdTop > 490) {
     console.log("Game Over: Bird hit ground, birdTop=", birdTop);
     endGame();
     return;
