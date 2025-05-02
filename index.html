@@ -56,12 +56,28 @@
          data-ad-slot="3177910219"></ins>
   </div>
 
+  <!-- ✅ SECOND FIXED SIDE AD (desktop only) -->
+  <div style="position: fixed; right: 0; top: 50%; transform: translateY(-50%); z-index: 9999; display: none;" id="side-ad">
+    <ins class="adsbygoogle"
+         style="display:block; width:160px; height:600px;"
+         data-ad-format="fluid"
+         data-ad-layout-key="-hh-7+2h-1m-4u"
+         data-ad-client="ca-pub-7743589417689476"
+         data-ad-slot="3877055853"></ins>
+  </div>
+
   <script src="script.js"></script>
 
-  <!-- Initialize Both Ad Blocks -->
+  <!-- Initialize All Ads -->
   <script>
     (adsbygoogle = window.adsbygoogle || []).push({});
     (adsbygoogle = window.adsbygoogle || []).push({});
+    (adsbygoogle = window.adsbygoogle || []).push({});
+    
+    // 💡 Show fixed ad only on wide screens (desktop)
+    if (window.innerWidth >= 1000) {
+      document.getElementById("side-ad").style.display = "block";
+    }
   </script>
 </body>
 </html>
