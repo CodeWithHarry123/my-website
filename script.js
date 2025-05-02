@@ -28,71 +28,6 @@ let outCount = 0; // Track number of times player dies
 
 highScoreDisplay.innerText = `High Score: ${highScore}`;
 
-// AdMob Ad Unit IDs (Your provided IDs)
-const interstitialAdUnit = "ca-app-pub-8555499173736872/1199556089"; // Interstitial Ad Unit ID
-const rewardedAdUnit = "ca-app-pub-8555499173736872/4396565069"; // Rewarded Ad Unit ID
-const appId = "ca-app-pub-8555499173736872~3458887913"; // Your App ID
-
-// Load Interstitial Ad
-let interstitialAd = null;
-function loadInterstitialAd() {
-  interstitialAd = document.createElement("ins");
-  interstitialAd.className = "adsbygoogle";
-  interstitialAd.style.display = "none";
-  interstitialAd.style.position = "fixed";
-  interstitialAd.style.top = "0";
-  interstitialAd.style.left = "0";
-  interstitialAd.style.width = "100%";
-  interstitialAd.style.height = "100%";
-  interstitialAd.style.zIndex = "10";
-  interstitialAd.dataset.adFormat = "fluid";
-  interstitialAd.dataset.adClient = appId.split("~")[0]; // ca-pub-8555499173736872
-  interstitialAd.dataset.adSlot = interstitialAdUnit.split("/")[1]; // 1199556089
-  document.body.appendChild(interstitialAd);
-  // Try to pre-load ad
-  try {
-    (adsbygoogle = window.adsbygoogle || []).push({});
-    console.log("Interstitial ad pre-loaded");
-  } catch (e) {
-    console.error("Interstitial ad pre-load error:", e);
-  }
-}
-
-// Load Rewarded Ad
-let rewardedAd = null;
-function loadRewardedAd() {
-  rewardedAd = document.createElement("ins");
-  rewardedAd.className = "adsbygoogle";
-  rewardedAd.style.display = "none";
-  rewardedAd.style.position = "fixed";
-  rewardedAd.style.top = "0";
-  rewardedAd.style.left = "0";
-  rewardedAd.style.width = "100%";
-  rewardedAd.style.height = "100%";
-  rewardedAd.style.zIndex = "10";
-  rewardedAd.dataset.adFormat = "reward";
-  rewardedAd.dataset.adClient = appId.split("~")[0]; // ca-pub-8555499173736872
-  rewardedAd.dataset.adSlot = rewardedAdUnit.split("/")[1]; // 4396565069
-  document.body.appendChild(rewardedAd);
-  // Try to pre-load ad
-  try {
-    (adsbygoogle = window.adsbygoogle || []).push({});
-    console.log("Rewarded ad pre-loaded");
-  } catch (e) {
-    console.error("Rewarded ad pre-load error:", e);
-  }
-}
-
-// Initialize ads on page load
-document.addEventListener("DOMContentLoaded", function () {
-  if (window.adsbygoogle) {
-    loadInterstitialAd();
-    loadRewardedAd();
-  } else {
-    console.warn("AdMob SDK not loaded. Ads will not be initialized.");
-  }
-});
-
 function startGame() {
   if (!isGameStarted) {
     isGameStarted = true;
@@ -172,48 +107,8 @@ function endGame() {
   createParticles(120, birdTop + 15);
   finalScoreDisplay.innerText = `Score: ${score}`;
   outCount++;
-
-  console.log(`Game Over: Score=${score}, birdTop=${birdTop}, outCount=${outCount}`);
-
-  if (outCount === 4 && interstitialAd) {
-    interstitialAd.style.display = "block";
-    try {
-      (adsbygoogle = window.adsbygoogle || []).push({});
-      console.log("Interstitial ad displayed");
-    } catch (e) {
-      console.error("Interstitial ad display error:", e);
-      interstitialAd.style.display = "none";
-      gameOverScreen.classList.remove("hidden");
-    }
-    setTimeout(() => {
-      interstitialAd.style.display = "none";
-      document.body.removeChild(interstitialAd);
-      interstitialAd = null;
-      loadInterstitialAd(); // Preload next ad
-      gameOverScreen.classList.remove("hidden");
-      console.log("Interstitial ad closed");
-    }, 5000);
-  } else if (outCount === 10 && rewardedAd) {
-    rewardedAd.style.display = "block";
-    try {
-      (adsbygoogle = window.adsbygoogle || []).push({});
-      console.log("Rewarded ad displayed");
-    } catch (e) {
-      console.error("Rewarded ad display error:", e);
-      rewardedAd.style.display = "none";
-      gameOverScreen.classList.remove("hidden");
-    }
-    setTimeout(() => {
-      rewardedAd.style.display = "none";
-      document.body.removeChild(rewardedAd);
-      rewardedAd = null;
-      loadRewardedAd(); // Preload next ad
-      gameOverScreen.classList.remove("hidden");
-      console.log("Rewarded ad closed");
-    }, 10000);
-  } else {
-    gameOverScreen.classList.remove("hidden");
-  }
+  console.log(`Game Over: Score $score=${score}, birdTop=${birdTop}, outCount=${outCount}`);
+  gameOverScreen.classList.remove("hidden");
 }
 
 function resetGame() {
@@ -281,14 +176,15 @@ function gameLoop(timestamp) {
     const topPipeHeight = parseInt(pipe.top.style.height) || 0;
     const bottomPipeY = topPipeHeight + 200; // Use pipeGap = 200 directly
 
-    // Log collision check details
+    const collisionBuffer = 5; // Collision buffer for leniency
+
     if (
-      birdX + birdWidth > pipeX &&
-      birdX < pipeX + pipeWidth &&
-      (birdY < topPipeHeight || birdY + birdHeight > bottomPipeY)
+      birdX + birdWidth > pipeX - collisionBuffer &&
+      birdX < pipeX + pipeWidth + collisionBuffer &&
+      (birdY < topPipeHeight + collisionBuffer || birdY + birdHeight > bottomPipeY - collisionBuffer)
     ) {
       console.log(
-        `Game Over: Collision with pipe, birdX=${birdX}, birdY=${birdY}, pipeX=${pipeX}, topPipeHeight=${topPipeHeight}, bottomPipeY=${bottomPipeY}`
+        `Game Over: Collision with pipe\nBird Position: birdX=${birdX}, birdY=${birdY}, birdWidth=${birdWidth}, birdHeight=${birdHeight}\nPipe Position: pipeX=${pipeX}, topPipeHeight=${topPipeHeight}, bottomPipeY=${bottomPipeY}`
       );
       endGame();
       return false;
