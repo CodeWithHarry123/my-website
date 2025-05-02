@@ -1,80 +1,57 @@
 const bird = document.getElementById("bird");
-const game = document.getElementById("game");
-const scoreDisplay = document.getElementById("score");
-const highScoreDisplay = document.getElementById("high-score");
-const startScreen = document.getElementById("start-screen");
-const gameOverScreen = document.getElementById("game-over-screen");
-const pauseScreen = document.getElementById("pause-screen");
-const finalScoreDisplay = document.getElementById("final-score");
-const retryBtn = document.getElementById("retry-btn");
-const menuBtn = document.getElementById("menu-btn");
+const scoreText = document.getElementById("score");
 const pipeContainer = document.getElementById("pipe-container");
+const restartBtn = document.getElementById("restartBtn");
+const jumpSound = document.getElementById("jumpSound");
+const hitSound = document.getElementById("hitSound");
 
-let birdTop = 200;
-let gravity = 2.5;
+let gravity = 0.7;
 let velocity = 0;
 let isGameOver = false;
-let isGameStarted = false;
-let isPaused = false;
 let score = 0;
-let highScore = localStorage.getItem("highScore") || 0;
-let pipeSpeed = 2;
-let lastTime = 0;
+let gameLoopInterval;
+let pipeInterval;
+let highScore = localStorage.getItem("flappyHighScore") || 0;
 
-highScoreDisplay.innerText = `High Score: ${highScore}`;
+// Set high score initially
+document.getElementById("highScore").innerText = `High Score: ${highScore}`;
 
-function startGame() {
-  if (!isGameStarted) {
-    isGameStarted = true;
-    startScreen.classList.add("hidden");
-    requestAnimationFrame(gameLoop);
+// User Input: Key or Mouse
+document.addEventListener("keydown", jump);
+document.addEventListener("click", jump);
+
+// Bird jump logic
+function jump() {
+  if (isGameOver) return;
+  velocity = -10;
+  if (jumpSound) {
+    jumpSound.currentTime = 0;
+    jumpSound.play();
   }
 }
 
-function flap() {
-  if (!isGameOver && isGameStarted && !isPaused) {
-    velocity = -10;
-    bird.classList.add("flap");
-    setTimeout(() => bird.classList.remove("flap"), 100);
-  }
-}
-
-function pauseGame() {
-  if (isGameStarted && !isGameOver) {
-    isPaused = !isPaused;
-    pauseScreen.classList.toggle("hidden");
-    if (!isPaused) {
-      requestAnimationFrame(gameLoop);
-    }
-  }
-}
-
+// Create pipes
 function createPipe() {
-  if (!isGameStarted || isGameOver || isPaused) return;
-
-  const pipeGap = 150;
-  const minHeight = 50;
-  const maxHeight = 350;
-  const pipeTopHeight = Math.floor(Math.random() * (maxHeight - minHeight)) + minHeight;
-  const pipeBottomHeight = 600 - pipeTopHeight - pipeGap;
+  const gap = 150;
+  const pipeTopHeight = Math.floor(Math.random() * 200) + 50;
+  const pipeBottomHeight = 600 - pipeTopHeight - gap;
 
   const pipeTop = document.createElement("div");
   pipeTop.classList.add("pipe", "top");
-  pipeTop.style.height = pipeTopHeight + "px";
+  pipeTop.style.height = `${pipeTopHeight}px`;
   pipeTop.style.left = "400px";
-  pipeTop.style.filter = `hue-rotate(${Math.random() * 360}deg)`;
 
   const pipeBottom = document.createElement("div");
   pipeBottom.classList.add("pipe", "bottom");
-  pipeBottom.style.height = pipeBottomHeight + "px";
+  pipeBottom.style.height = `${pipeBottomHeight}px`;
   pipeBottom.style.left = "400px";
-  pipeBottom.style.filter = pipeTop.style.filter;
 
   pipeContainer.appendChild(pipeTop);
   pipeContainer.appendChild(pipeBottom);
 
-  let move = setInterval(() => {
-    if (isGameOver || isPaused) {
+  // Move pipes to left
+  const move = setInterval(() => {
+    if (isGameOver) {
       clearInterval(move);
       return;
     }
@@ -85,117 +62,81 @@ function createPipe() {
       pipeContainer.removeChild(pipeBottom);
       clearInterval(move);
       score++;
-      scoreDisplay.innerText = `Score: ${score}`;
-      if (score > highScore) {
-        highScore = score;
-        highScoreDisplay.innerText = `High Score: ${highScore}`;
-        localStorage.setItem("highScore", highScore);
-      }
-      if (score % 5 === 0) {
-        pipeSpeed += 0.2;
-        gravity += 0.1;
-      }
+      scoreText.innerText = `Score: ${score}`;
     } else {
-      pipeTop.style.left = left - pipeSpeed + "px";
-      pipeBottom.style.left = left - pipeSpeed + "px";
+      pipeTop.style.left = `${left - 2}px`;
+      pipeBottom.style.left = `${left - 2}px`;
 
+      // Collision detection
       const birdRect = bird.getBoundingClientRect();
-      const pipeTopRect = pipeTop.getBoundingClientRect();
-      const pipeBottomRect = pipeBottom.getBoundingClientRect();
-      const groundRect = document.getElementById("ground").getBoundingClientRect();
+      const topRect = pipeTop.getBoundingClientRect();
+      const botRect = pipeBottom.getBoundingClientRect();
 
       if (
-        birdRect.right > pipeTopRect.left &&
-        birdRect.left < pipeTopRect.right &&
-        (birdRect.top < pipeTopRect.bottom || birdRect.bottom > pipeBottomRect.top)
+        birdRect.right > topRect.left &&
+        birdRect.left < topRect.right &&
+        (birdRect.top < topRect.bottom || birdRect.bottom > botRect.top)
       ) {
-        endGame();
-      }
-
-      if (birdRect.bottom > groundRect.top || birdRect.top < 0) {
         endGame();
       }
     }
   }, 20);
 }
 
-function createParticles(x, y) {
-  for (let i = 0; i < 10; i++) {
-    const particle = document.createElement("div");
-    particle.classList.add("particle");
-    particle.style.left = x + "px";
-    particle.style.top = y + "px";
-    particle.style.transform = `translate(${Math.random() * 20 - 10}px, ${Math.random() * 20 - 10}px)`;
-    game.appendChild(particle);
-    setTimeout(() => game.removeChild(particle), 500);
+// Gravity and game loop
+function gameLoop() {
+  if (isGameOver) return;
+
+  velocity += gravity;
+  let top = parseInt(window.getComputedStyle(bird).top);
+  top += velocity;
+  bird.style.top = `${top}px`;
+
+  // Hit ground or go above
+  if (top > 530 || top < 0) {
+    endGame();
   }
 }
 
+// Game Over
 function endGame() {
+  if (isGameOver) return;
+
+  if (score > highScore) {
+    highScore = score;
+    localStorage.setItem("flappyHighScore", highScore);
+  }
+
   isGameOver = true;
-  bird.classList.add("fall");
-  const birdRect = bird.getBoundingClientRect();
-  createParticles(birdRect.left + 20, birdRect.top + 15);
-  finalScoreDisplay.innerText = `Score: ${score}`;
-  gameOverScreen.classList.remove("hidden");
+  clearInterval(gameLoopInterval);
+  clearInterval(pipeInterval);
+  restartBtn.style.display = "inline-block";
+
+  if (hitSound) hitSound.play();
 }
 
-function resetGame() {
+// Restart the game
+function restartGame() {
   score = 0;
-  birdTop = 200;
   velocity = 0;
   isGameOver = false;
-  isGameStarted = false;
-  isPaused = false;
-  pipeSpeed = 2;
-  gravity = 2.5;
-  scoreDisplay.innerText = "Score: 0";
-  bird.classList.remove("fall");
-  bird.style.top = birdTop + "px";
+  bird.style.top = "200px";
   pipeContainer.innerHTML = "";
-  gameOverScreen.classList.add("hidden");
-  startScreen.classList.remove("hidden");
+  scoreText.innerText = "Score: 0";
+  document.getElementById("highScore").innerText = `High Score: ${localStorage.getItem("flappyHighScore")}`;
+  restartBtn.style.display = "none";
+
+  startGame();
 }
 
-function gameLoop(timestamp) {
-  if (!isGameStarted || isGameOver || isPaused) return;
-
-  const delta = (timestamp - lastTime) / 1000;
-  lastTime = timestamp;
-
-  velocity += gravity * delta * 60;
-  birdTop += velocity * delta * 60;
-  bird.style.top = birdTop + "px";
-
-  requestAnimationFrame(gameLoop);
+// Main game start
+function startGame() {
+  gameLoopInterval = setInterval(gameLoop, 20);
+  pipeInterval = setInterval(createPipe, 2000);
 }
 
-// Event Listeners
-document.addEventListener("keydown", (e) => {
-  if (e.code === "Space") {
-    if (!isGameStarted) startGame();
-    else if (isPaused) pauseGame();
-    else flap();
-  }
-  if (e.code === "KeyP") pauseGame();
-});
+// Restart button event
+restartBtn.addEventListener("click", restartGame);
 
-game.addEventListener("click", () => {
-  if (!isGameStarted) startGame();
-  else if (isPaused) pauseGame();
-  else flap();
-});
-
-game.addEventListener("touchstart", (e) => {
-  e.preventDefault();
-  if (!isGameStarted) startGame();
-  else if (isPaused) pauseGame();
-  else flap();
-});
-
-retryBtn.addEventListener("click", resetGame);
-menuBtn.addEventListener("click", resetGame);
-
-// Start pipe creation
-setInterval(createPipe, 2000);
-lastTime = performance.now();
+// Start the game on load
+startGame();
