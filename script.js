@@ -23,8 +23,7 @@ let lastTime = 0;
 let lastPipeTime = 0;
 let pipes = [];
 let lastFlapTime = 0;
-const flapCooldown = 150;
-let outCount = 0; // Track number of times player dies
+const flapCooldown = 150; // Reduced for mobile responsiveness
 
 highScoreDisplay.innerText = `High Score: ${highScore}`;
 
@@ -64,7 +63,7 @@ function createPipe(timestamp) {
   if (!isGameStarted || isGameOver || isPaused) return;
   if (timestamp - lastPipeTime < 2000) return;
 
-  const pipeGap = 200; // Kept at 200 for easier gameplay
+  const pipeGap = 150;
   const minHeight = 50;
   const maxHeight = 350;
   const pipeTopHeight = Math.floor(Math.random() * (maxHeight - minHeight)) + minHeight;
@@ -106,8 +105,6 @@ function endGame() {
   bird.classList.add("fall");
   createParticles(120, birdTop + 15);
   finalScoreDisplay.innerText = `Score: ${score}`;
-  outCount++;
-  console.log(`Game Over: Score $score=${score}, birdTop=${birdTop}, outCount=${outCount}`);
   gameOverScreen.classList.remove("hidden");
 }
 
@@ -138,14 +135,13 @@ function gameLoop(timestamp) {
   lastTime = timestamp;
 
   // Update bird
-  velocity += gravity * delta * 20;
-  birdTop += velocity * delta * 20;
+  velocity += gravity * delta * 30;
+  birdTop += velocity * delta * 30;
   if (birdTop < 0) {
     birdTop = 0;
     velocity = 0;
   }
   if (birdTop > 470) {
-    console.log("Game Over: Bird hit ground, birdTop=", birdTop);
     endGame();
     return;
   }
@@ -173,19 +169,14 @@ function gameLoop(timestamp) {
     const birdHeight = 30;
     const pipeX = left;
     const pipeWidth = 60;
-    const topPipeHeight = parseInt(pipe.top.style.height) || 0;
-    const bottomPipeY = topPipeHeight + 200; // Use pipeGap = 200 directly
-
-    const collisionBuffer = 5; // Collision buffer for leniency
+    const topPipeHeight = parseInt(pipe.top.style.height);
+    const bottomPipeY = 600 - parseInt(pipe.bottom.style.height);
 
     if (
-      birdX + birdWidth > pipeX - collisionBuffer &&
-      birdX < pipeX + pipeWidth + collisionBuffer &&
-      (birdY < topPipeHeight + collisionBuffer || birdY + birdHeight > bottomPipeY - collisionBuffer)
+      birdX + birdWidth > pipeX &&
+      birdX < pipeX + pipeWidth &&
+      (birdY < topPipeHeight || birdY + birdHeight > bottomPipeY)
     ) {
-      console.log(
-        `Game Over: Collision with pipe\nBird Position: birdX=${birdX}, birdY=${birdY}, birdWidth=${birdWidth}, birdHeight=${birdHeight}\nPipe Position: pipeX=${pipeX}, topPipeHeight=${topPipeHeight}, bottomPipeY=${bottomPipeY}`
-      );
       endGame();
       return false;
     }
@@ -220,31 +211,24 @@ function handleInput(e) {
   else flap();
 }
 
-// Desktop and Mobile: Game and screen interactions
+// Desktop
 document.addEventListener("keydown", (e) => {
   if (e.code === "Space") handleInput(e);
   if (e.code === "KeyP") pauseGame();
 });
 game.addEventListener("click", handleInput);
+
+// Mobile
 game.addEventListener("touchstart", handleInput);
-startScreen.addEventListener("click", handleInput);
 startScreen.addEventListener("touchstart", handleInput);
-pauseScreen.addEventListener("click", handleInput);
 pauseScreen.addEventListener("touchstart", handleInput);
-gameOverScreen.addEventListener("click", (e) => {
-  if (!e.target.closest("button")) handleInput(e);
-});
 gameOverScreen.addEventListener("touchstart", (e) => {
   e.preventDefault();
+  // Only trigger if tapping outside buttons
   if (!e.target.closest("button")) handleInput(e);
 });
 
-// Button interactions
-function handleButtonClick(e) {
-  e.preventDefault();
-  resetGame();
-}
-retryBtn.addEventListener("click", handleButtonClick);
-retryBtn.addEventListener("touchstart", handleButtonClick);
-menuBtn.addEventListener("click", handleButtonClick);
-menuBtn.addEventListener("touchstart", handleButtonClick);
+// Button clicks
+retryBtn.addEventListener("click", resetGame);
+menuBtn.addEventListener("click", resetGame);
+  
