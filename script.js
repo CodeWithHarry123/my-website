@@ -11,40 +11,31 @@ const menuBtn = document.getElementById("menu-btn");
 const pipeContainer = document.getElementById("pipe-container");
 
 let birdTop = 200;
-let gravity = 0.5;
+let gravity = 2.5;
 let velocity = 0;
 let isGameOver = false;
 let isGameStarted = false;
 let isPaused = false;
 let score = 0;
-let highScore = parseInt(localStorage.getItem("highScore")) || 0;
+let highScore = localStorage.getItem("highScore") || 0;
 let pipeSpeed = 2;
 let lastTime = 0;
-let lastPipeTime = 0;
-let pipes = [];
-let lastFlapTime = 0;
-const flapCooldown = 150; // Reduced for mobile responsiveness
 
 highScoreDisplay.innerText = `High Score: ${highScore}`;
 
 function startGame() {
   if (!isGameStarted) {
     isGameStarted = true;
-    isPaused = false;
     startScreen.classList.add("hidden");
-    pauseScreen.classList.add("hidden");
-    lastTime = performance.now();
     requestAnimationFrame(gameLoop);
   }
 }
 
 function flap() {
-  const now = Date.now();
-  if (!isGameOver && isGameStarted && !isPaused && now - lastFlapTime > flapCooldown) {
-    velocity = -7;
+  if (!isGameOver && isGameStarted && !isPaused) {
+    velocity = -10;
     bird.classList.add("flap");
     setTimeout(() => bird.classList.remove("flap"), 100);
-    lastFlapTime = now;
   }
 }
 
@@ -53,15 +44,13 @@ function pauseGame() {
     isPaused = !isPaused;
     pauseScreen.classList.toggle("hidden");
     if (!isPaused) {
-      lastTime = performance.now();
       requestAnimationFrame(gameLoop);
     }
   }
 }
 
-function createPipe(timestamp) {
+function createPipe() {
   if (!isGameStarted || isGameOver || isPaused) return;
-  if (timestamp - lastPipeTime < 2000) return;
 
   const pipeGap = 150;
   const minHeight = 50;
@@ -83,9 +72,51 @@ function createPipe(timestamp) {
 
   pipeContainer.appendChild(pipeTop);
   pipeContainer.appendChild(pipeBottom);
-  pipes.push({ top: pipeTop, bottom: pipeBottom, scored: false });
 
-  lastPipeTime = timestamp;
+  let move = setInterval(() => {
+    if (isGameOver || isPaused) {
+      clearInterval(move);
+      return;
+    }
+
+    let left = parseInt(pipeTop.style.left);
+    if (left < -60) {
+      pipeContainer.removeChild(pipeTop);
+      pipeContainer.removeChild(pipeBottom);
+      clearInterval(move);
+      score++;
+      scoreDisplay.innerText = `Score: ${score}`;
+      if (score > highScore) {
+        highScore = score;
+        highScoreDisplay.innerText = `High Score: ${highScore}`;
+        localStorage.setItem("highScore", highScore);
+      }
+      if (score % 5 === 0) {
+        pipeSpeed += 0.2;
+        gravity += 0.1;
+      }
+    } else {
+      pipeTop.style.left = left - pipeSpeed + "px";
+      pipeBottom.style.left = left - pipeSpeed + "px";
+
+      const birdRect = bird.getBoundingClientRect();
+      const pipeTopRect = pipeTop.getBoundingClientRect();
+      const pipeBottomRect = pipeBottom.getBoundingClientRect();
+      const groundRect = document.getElementById("ground").getBoundingClientRect();
+
+      if (
+        birdRect.right > pipeTopRect.left &&
+        birdRect.left < pipeTopRect.right &&
+        (birdRect.top < pipeTopRect.bottom || birdRect.bottom > pipeBottomRect.top)
+      ) {
+        endGame();
+      }
+
+      if (birdRect.bottom > groundRect.top || birdRect.top < 0) {
+        endGame();
+      }
+    }
+  }, 20);
 }
 
 function createParticles(x, y) {
@@ -96,14 +127,15 @@ function createParticles(x, y) {
     particle.style.top = y + "px";
     particle.style.transform = `translate(${Math.random() * 20 - 10}px, ${Math.random() * 20 - 10}px)`;
     game.appendChild(particle);
-    setTimeout(() => particle.remove(), 500);
+    setTimeout(() => game.removeChild(particle), 500);
   }
 }
 
 function endGame() {
   isGameOver = true;
   bird.classList.add("fall");
-  createParticles(120, birdTop + 15);
+  const birdRect = bird.getBoundingClientRect();
+  createParticles(birdRect.left + 20, birdRect.top + 15);
   finalScoreDisplay.innerText = `Score: ${score}`;
   gameOverScreen.classList.remove("hidden");
 }
@@ -116,15 +148,12 @@ function resetGame() {
   isGameStarted = false;
   isPaused = false;
   pipeSpeed = 2;
-  gravity = 0.5;
-  pipes = [];
-  lastPipeTime = 0;
+  gravity = 2.5;
   scoreDisplay.innerText = "Score: 0";
   bird.classList.remove("fall");
   bird.style.top = birdTop + "px";
   pipeContainer.innerHTML = "";
   gameOverScreen.classList.add("hidden");
-  pauseScreen.classList.add("hidden");
   startScreen.classList.remove("hidden");
 }
 
@@ -134,101 +163,39 @@ function gameLoop(timestamp) {
   const delta = (timestamp - lastTime) / 1000;
   lastTime = timestamp;
 
-  // Update bird
-  velocity += gravity * delta * 30;
-  birdTop += velocity * delta * 30;
-  if (birdTop < 0) {
-    birdTop = 0;
-    velocity = 0;
-  }
-  if (birdTop > 470) {
-    endGame();
-    return;
-  }
+  velocity += gravity * delta * 60;
+  birdTop += velocity * delta * 60;
   bird.style.top = birdTop + "px";
-
-  // Create pipes
-  createPipe(timestamp);
-
-  // Update pipes
-  pipes = pipes.filter((pipe) => {
-    let left = parseInt(pipe.top.style.left);
-    if (left < -60) {
-      pipe.top.remove();
-      pipe.bottom.remove();
-      return false;
-    }
-    left -= pipeSpeed * delta * 60;
-    pipe.top.style.left = left + "px";
-    pipe.bottom.style.left = left + "px";
-
-    // Collision detection
-    const birdX = 100;
-    const birdY = birdTop;
-    const birdWidth = 40;
-    const birdHeight = 30;
-    const pipeX = left;
-    const pipeWidth = 60;
-    const topPipeHeight = parseInt(pipe.top.style.height);
-    const bottomPipeY = 600 - parseInt(pipe.bottom.style.height);
-
-    if (
-      birdX + birdWidth > pipeX &&
-      birdX < pipeX + pipeWidth &&
-      (birdY < topPipeHeight || birdY + birdHeight > bottomPipeY)
-    ) {
-      endGame();
-      return false;
-    }
-
-    // Score when bird passes pipe
-    if (!pipe.scored && pipeX + pipeWidth < birdX) {
-      score++;
-      scoreDisplay.innerText = `Score: ${score}`;
-      if (score > highScore) {
-        highScore = score;
-        highScoreDisplay.innerText = `High Score: ${highScore}`;
-        localStorage.setItem("highScore", highScore);
-      }
-      pipe.scored = true;
-      if (score % 5 === 0) {
-        pipeSpeed += 0.2;
-        gravity += 0.05;
-      }
-    }
-
-    return true;
-  });
 
   requestAnimationFrame(gameLoop);
 }
 
 // Event Listeners
-function handleInput(e) {
+document.addEventListener("keydown", (e) => {
+  if (e.code === "Space") {
+    if (!isGameStarted) startGame();
+    else if (isPaused) pauseGame();
+    else flap();
+  }
+  if (e.code === "KeyP") pauseGame();
+});
+
+game.addEventListener("click", () => {
+  if (!isGameStarted) startGame();
+  else if (isPaused) pauseGame();
+  else flap();
+});
+
+game.addEventListener("touchstart", (e) => {
   e.preventDefault();
   if (!isGameStarted) startGame();
   else if (isPaused) pauseGame();
   else flap();
-}
-
-// Desktop
-document.addEventListener("keydown", (e) => {
-  if (e.code === "Space") handleInput(e);
-  if (e.code === "KeyP") pauseGame();
-});
-game.addEventListener("click", handleInput);
-
-// Mobile
-game.addEventListener("touchstart", handleInput);
-startScreen.addEventListener("touchstart", handleInput);
-pauseScreen.addEventListener("touchstart", handleInput);
-gameOverScreen.addEventListener("touchstart", (e) => {
-  e.preventDefault();
-  // Only trigger if tapping outside buttons
-  if (!e.target.closest("button")) handleInput(e);
 });
 
-// Button clicks
 retryBtn.addEventListener("click", resetGame);
 menuBtn.addEventListener("click", resetGame);
-  
+
+// Start pipe creation
+setInterval(createPipe, 2000);
+lastTime = performance.now();
