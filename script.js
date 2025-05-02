@@ -11,7 +11,7 @@ const menuBtn = document.getElementById("menu-btn");
 const pipeContainer = document.getElementById("pipe-container");
 
 let birdTop = 200;
-let gravity = 2.5;
+let gravity = 0.2;
 let velocity = 0;
 let isGameOver = false;
 let isGameStarted = false;
@@ -228,4 +228,5 @@ game.addEventListener("touchstart", (e) => {
 
 retryBtn.addEventListener("click", resetGame);
 menuBtn.addEventListener("click", resetGame);
+  
   
