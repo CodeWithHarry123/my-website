@@ -144,10 +144,11 @@ function gameLoop(timestamp) {
     birdTop = 0;
     velocity = 0;
   }
-  if (birdTop > 300) {
-    console.log("Game Over: Bird hit ground, birdTop=", birdTop);
-    endGame();
-    return;
+const gameHeight = game.clientHeight || 500; // game ki actual height
+if (birdTop + 30 > gameHeight) { // 30 = bird ki height
+  endGame();
+  return;
+}
   }
   bird.style.top = birdTop + "px";
 
