@@ -1,0 +1,21 @@
+{
+  "name": "Flappy Bird Ultra",
+  "short_name": "Flappy Ultra",
+  "description": "An addictive arcade game where you navigate a bird through pipes.",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#70c5ce",
+  "theme_color": "#333",
+  "icons": [
+    {
+      "src": "images/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "images/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
