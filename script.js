@@ -1,14 +1,28 @@
 const bird = document.getElementById("bird");
-const game = document.getElementById("game");
+const gameCanvas = document.getElementById("game-canvas");
 const scoreDisplay = document.getElementById("score");
 const highScoreDisplay = document.getElementById("high-score");
 const startScreen = document.getElementById("start-screen");
 const gameOverScreen = document.getElementById("game-over-screen");
 const pauseScreen = document.getElementById("pause-screen");
+const tutorialScreen = document.getElementById("tutorial-screen");
+const settingsScreen = document.getElementById("settings-screen");
+const loadingScreen = document.getElementById("loading-screen");
 const finalScoreDisplay = document.getElementById("final-score");
 const retryBtn = document.getElementById("retry-btn");
 const menuBtn = document.getElementById("menu-btn");
+const shareBtn = document.getElementById("share-btn");
+const tutorialBtn = document.getElementById("tutorial-btn");
+const closeTutorialBtn = document.getElementById("close-tutorial");
+const closeSettingsBtn = document.getElementById("close-settings");
 const pipeContainer = document.getElementById("pipe-container");
+const soundToggle = document.getElementById("sound-toggle");
+const difficultySelect = document.getElementById("difficulty");
+const themeSelect = document.getElementById("theme");
+const sections = document.querySelectorAll(".section");
+const navLinks = document.querySelectorAll(".nav-links a");
+const menuToggle = document.querySelector(".menu-toggle");
+const nav = document.querySelector(".nav-links");
 
 let birdTop = 200;
 let gravity = 0.5;
@@ -24,16 +38,114 @@ let lastPipeTime = 0;
 let pipes = [];
 let lastFlapTime = 0;
 const flapCooldown = 150;
-let outCount = 0; // Track number of times player dies
+let soundEnabled = true;
+let difficulty = "medium";
+let theme = "day";
 
 highScoreDisplay.innerText = `High Score: ${highScore}`;
 
+// Sounds
+const flapSound = new Audio("sounds/flap.mp3");
+const scoreSound = new Audio("sounds/score.mp3");
+const hitSound = new Audio("sounds/hit.mp3");
+
+function playSound(sound) {
+  if (soundEnabled) {
+    sound.currentTime = 0;
+    sound.play().catch(() => {});
+  }
+}
+
+// Navigation
+navLinks.forEach(link => {
+  link.addEventListener("click", (e) => {
+    e.preventDefault();
+    const targetId = link.getAttribute("href").substring(1);
+    sections.forEach(section => section.classList.add("hidden"));
+    document.getElementById(targetId).classList.remove("hidden");
+    navLinks.forEach(l => l.classList.remove("active"));
+    link.classList.add("active");
+    if (targetId === "game") {
+      resetGame();
+    }
+    nav.classList.remove("active");
+  });
+});
+
+menuToggle.addEventListener("click", () => {
+  nav.classList.toggle("active");
+});
+
+// Settings
+soundToggle.addEventListener("change", () => {
+  soundEnabled = soundToggle.checked;
+  localStorage.setItem("soundEnabled", soundEnabled);
+});
+
+difficultySelect.addEventListener("change", () => {
+  difficulty = difficultySelect.value;
+  localStorage.setItem("difficulty", difficulty);
+  updateDifficulty();
+});
+
+themeSelect.addEventListener("change", () => {
+  theme = themeSelect.value;
+  localStorage.setItem("theme", theme);
+  updateTheme();
+});
+
+closeSettingsBtn.addEventListener("click", () => {
+  settingsScreen.classList.add("hidden");
+  startScreen.classList.remove("hidden");
+});
+
+function updateDifficulty() {
+  switch (difficulty) {
+    case "easy":
+      gravity = 0.4;
+      pipeSpeed = 1.5;
+      break;
+    case "medium":
+      gravity = 0.5;
+      pipeSpeed = 2;
+      break;
+    case "hard":
+      gravity = 0.6;
+      pipeSpeed = 2.5;
+      break;
+  }
+}
+
+function updateTheme() {
+  document.body.className = theme;
+  document.getElementById("background").className = `bg-${theme}`;
+}
+
+// Load saved settings
+if (localStorage.getItem("soundEnabled")) {
+  soundEnabled = localStorage.getItem("soundEnabled") === "true";
+  soundToggle.checked = soundEnabled;
+}
+if (localStorage.getItem("difficulty")) {
+  difficulty = localStorage.getItem("difficulty");
+  difficultySelect.value = difficulty;
+}
+if (localStorage.getItem("theme")) {
+  theme = localStorage.getItem("theme");
+  themeSelect.value = theme;
+}
+updateDifficulty();
+updateTheme();
+
+// Game Logic
 function startGame() {
   if (!isGameStarted) {
     isGameStarted = true;
     isPaused = false;
     startScreen.classList.add("hidden");
+    tutorialScreen.classList.add("hidden");
     pauseScreen.classList.add("hidden");
+    settingsScreen.classList.add("hidden");
     lastTime = performance.now();
     requestAnimationFrame(gameLoop);
   }
@@ -43,6 +155,7 @@ function flap() {
   const now = Date.now();
   if (!isGameOver && isGameStarted && !isPaused && now - lastFlapTime > flapCooldown) {
     velocity = -7;
+    playSound(flapSound);
     bird.classList.add("flap");
     setTimeout(() => bird.classList.remove("flap"), 100);
     lastFlapTime = now;
@@ -64,7 +177,7 @@ function createPipe(timestamp) {
   if (!isGameStarted || isGameOver || isPaused) return;
   if (timestamp - lastPipeTime < 2000) return;
 
-  const pipeGap = 200; // Kept at 200 for easier gameplay
+  const pipeGap = difficulty === "easy" ? 220 : difficulty === "medium" ? 200 : 180;
   const minHeight = 50;
   const maxHeight = 350;
   const pipeTopHeight = Math.floor(Math.random() * (maxHeight - minHeight)) + minHeight;
@@ -96,7 +209,7 @@ function createParticles(x, y) {
     particle.style.left = x + "px";
     particle.style.top = y + "px";
     particle.style.transform = `translate(${Math.random() * 20 - 10}px, ${Math.random() * 20 - 10}px)`;
-    game.appendChild(particle);
+    gameCanvas.appendChild(particle);
     setTimeout(() => particle.remove(), 500);
   }
 }
@@ -104,10 +217,9 @@ function createParticles(x, y) {
 function endGame() {
   isGameOver = true;
   bird.classList.add("fall");
+  playSound(hitSound);
   createParticles(120, birdTop + 15);
   finalScoreDisplay.innerText = `Score: ${score}`;
-  outCount++;
-  console.log(`Game Over: Score=${score}, birdTop=${birdTop}, outCount=${outCount}`);
   gameOverScreen.classList.remove("hidden");
 }
 
@@ -118,8 +230,6 @@ function resetGame() {
   isGameOver = false;
   isGameStarted = false;
   isPaused = false;
-  pipeSpeed = 2;
-  gravity = 0.5;
   pipes = [];
   lastPipeTime = 0;
   scoreDisplay.innerText = "Score: 0";
@@ -128,7 +238,10 @@ function resetGame() {
   pipeContainer.innerHTML = "";
   gameOverScreen.classList.add("hidden");
   pauseScreen.classList.add("hidden");
+  tutorialScreen.classList.add("hidden");
+  settingsScreen.classList.add("hidden");
   startScreen.classList.remove("hidden");
+  updateDifficulty();
 }
 
 function gameLoop(timestamp) {
@@ -137,24 +250,20 @@ function gameLoop(timestamp) {
   const delta = (timestamp - lastTime) / 1000;
   lastTime = timestamp;
 
-  // Update bird
   velocity += gravity * delta * 20;
   birdTop += velocity * delta * 20;
   if (birdTop < 0) {
     birdTop = 0;
     velocity = 0;
   }
-  if (birdTop > 570) { // Adjusted for canvas height (600px) minus bird height (~30px)
-    console.log("Game Over: Bird hit ground, birdTop=", birdTop);
+  if (birdTop > 570) {
     endGame();
     return;
   }
   bird.style.top = birdTop + "px";
 
-  // Create pipes
   createPipe(timestamp);
 
-  // Update pipes
   pipes = pipes.filter((pipe) => {
     let left = parseInt(pipe.top.style.left);
     if (left < -60) {
@@ -166,7 +275,6 @@ function gameLoop(timestamp) {
     pipe.top.style.left = left + "px";
     pipe.bottom.style.left = left + "px";
 
-    // Collision detection
     const birdX = 100;
     const birdY = birdTop;
     const birdWidth = 34;
@@ -174,26 +282,23 @@ function gameLoop(timestamp) {
     const pipeX = left;
     const pipeWidth = 60;
     const topPipeHeight = parseInt(pipe.top.style.height) || 0;
-    const bottomPipeY = topPipeHeight + 200; // Use pipeGap = 200 directly
+    const bottomPipeY = topPipeHeight + (difficulty === "easy" ? 220 : difficulty === "medium" ? 200 : 180);
 
-    const collisionBuffer = 8; // Increased buffer for more forgiving collisions
-    const verticalBuffer = 10; // Added vertical leniency for pipe edges
+    const collisionBuffer = 8;
+    const verticalBuffer = 10;
 
     if (
       birdX + birdWidth > pipeX - collisionBuffer &&
       birdX < pipeX + pipeWidth + collisionBuffer &&
       (birdY < topPipeHeight - verticalBuffer || birdY + birdHeight > bottomPipeY + verticalBuffer)
     ) {
-      console.log(
-        `Game Over: Collision with pipe\nBird Position: birdX=${birdX}, birdY=${birdY}, birdWidth=${birdWidth}, birdHeight=${birdHeight}\nPipe Position: pipeX=${pipeX}, topPipeHeight=${topPipeHeight}, bottomPipeY=${bottomPipeY}`
-      );
       endGame();
       return false;
     }
 
-    // Score when bird passes pipe
     if (!pipe.scored && pipeX + pipeWidth < birdX) {
       score++;
+      playSound(scoreSound);
       scoreDisplay.innerText = `Score: ${score}`;
       if (score > highScore) {
         highScore = score;
@@ -202,8 +307,8 @@ function gameLoop(timestamp) {
       }
       pipe.scored = true;
       if (score % 5 === 0) {
-        pipeSpeed += 0.2;
-        gravity += 0.05;
+        pipeSpeed += difficulty === "easy" ? 0.1 : difficulty === "medium" ? 0.2 : 0.3;
+        gravity += difficulty === "easy" ? 0.03 : difficulty === "medium" ? 0.05 : 0.07;
       }
     }
 
@@ -221,13 +326,17 @@ function handleInput(e) {
   else flap();
 }
 
-// Desktop and Mobile: Game and screen interactions
 document.addEventListener("keydown", (e) => {
   if (e.code === "Space") handleInput(e);
   if (e.code === "KeyP") pauseGame();
+  if (e.code === "KeyS") {
+    startScreen.classList.add("hidden");
+    settingsScreen.classList.remove("hidden");
+  }
 });
-game.addEventListener("click", handleInput);
-game.addEventListener("touchstart", handleInput);
+
+gameCanvas.addEventListener("click", handleInput);
+gameCanvas.addEventListener("touchstart", handleInput);
 startScreen.addEventListener("click", handleInput);
 startScreen.addEventListener("touchstart", handleInput);
 pauseScreen.addEventListener("click", handleInput);
@@ -240,7 +349,6 @@ gameOverScreen.addEventListener("touchstart", (e) => {
   if (!e.target.closest("button")) handleInput(e);
 });
 
-// Button interactions
 function handleButtonClick(e) {
   e.preventDefault();
   resetGame();
@@ -248,4 +356,34 @@ function handleButtonClick(e) {
 retryBtn.addEventListener("click", handleButtonClick);
 retryBtn.addEventListener("touchstart", handleButtonClick);
 menuBtn.addEventListener("click", handleButtonClick);
-menuBtn.addEventListener("touchstart", handleButtonClick);1
+menuBtn.addEventListener("touchstart", handleButtonClick);
+tutorialBtn.addEventListener("click", () => {
+  startScreen.classList.add("hidden");
+  tutorialScreen.classList.remove("hidden");
+});
+closeTutorialBtn.addEventListener("click", () => {
+  tutorialScreen.classList.add("hidden");
+  startScreen.classList.remove("hidden");
+});
+
+shareBtn.addEventListener("click", () => {
+  const shareData = {
+    title: "Flappy Bird Ultra",
+    text: `I scored ${score} in Flappy Bird Ultra! Can you beat my score?`,
+    url: window.location.href
+  };
+  if (navigator.share) {
+    navigator.share(shareData).catch(() => {});
+  } else {
+    navigator.clipboard.writeText(`${shareData.text} ${shareData.url}`);
+    alert("Score copied to clipboard!");
+  }
+});
+
+// Loading Screen
+window.addEventListener("load", () => {
+  setTimeout(() => {
+    loadingScreen.classList.add("hidden");
+    document.getElementById("home").classList.remove("hidden");
+  }, 1000);
+});
