@@ -3,80 +3,174 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="description" content="Play Flappy Bird Ultra, an addictive and fun game! Navigate through pipes and achieve high scores." />
+  <meta name="keywords" content="flappy bird, ultra, game, arcade, online game, free game" />
+  <meta name="author" content="Your Name" />
+  <meta property="og:title" content="Flappy Bird Ultra" />
+  <meta property="og:description" content="Enjoy Flappy Bird Ultra, a thrilling arcade game. Play now and beat the high score!" />
+  <meta property="og:image" content="images/thumbnail.png" />
+  <meta property="og:url" content="https://yourdomain.com" />
   <title>Flappy Bird Ultra</title>
   <link rel="stylesheet" href="style.css" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" href="images/favicon.png" type="image/png" />
   
-  <!-- AdMob SDK -->
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-app-pub-8555499173736872~3458887913"
-          crossorigin="anonymous"></script>
-
-  <!-- ✅ Google AdSense (ca-pub-7743589417689476) -->
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7743589417689476"
-          crossorigin="anonymous"></script>
+  <!-- Google AdSense -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7743589417689476" crossorigin="anonymous"></script>
+  
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-XXXXXXXXXX');
+  </script>
 </head>
 <body>
-  <div id="game">
-    <div id="background"></div>
-    <div id="bird"></div>
-    <div id="pipe-container"></div>
-    <div id="ground"></div>
-  </div>
-  <div id="ui">
-    <h2 id="score">Score: 0</h2>
-    <h3 id="high-score">High Score: 0</h3>
-  </div>
-  <div id="start-screen" class="screen">
-    <h1>Flappy Bird Ultra</h1>
-    <p>Press Space, Click, or Tap to Start</p>
-  </div>
-  <div id="game-over-screen" class="screen hidden">
-    <h1>Game Over</h1>
-    <p id="final-score">Score: 0</p>
-    <button id="retry-btn">Retry</button>
-    <button id="menu-btn">Main Menu</button>
-  </div>
-  <div id="pause-screen" class="screen hidden">
-    <h1>Paused</h1>
-    <p>Press Space, Click, or Tap to Resume</p>
-  </div>
+  <!-- Navigation Menu -->
+  <nav class="navbar">
+    <div class="logo">Flappy Bird Ultra</div>
+    <ul class="nav-links">
+      <li><a href="#home" class="active">Home</a></li>
+      <li><a href="#game">Play Game</a></li>
+      <li><a href="#about">About</a></li>
+      <li><a href="#blog">Blog</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+    <div class="menu-toggle">☰</div>
+  </nav>
 
-  <!-- 🟡 Existing Banner Ad -->
-  <div id="banner-ad" style="position: absolute; bottom: 0; width: 100%; text-align: center; z-index: 6;">
-    <ins class="adsbygoogle"
-         style="display:inline-block;width:320px;height:50px"
-         data-ad-client="ca-app-pub-8555499173736872"
-         data-ad-slot="ca-app-pub-5469957679"></ins>
-  </div>
+  <!-- Home Section -->
+  <section id="home" class="section">
+    <h1>Welcome to Flappy Bird Ultra</h1>
+    <p>Experience the ultimate arcade adventure! Navigate through pipes, score high, and compete with friends.</p>
+    <a href="#game" class="btn">Play Now</a>
+    <img src="images/screenshot.png" alt="Flappy Bird Ultra Gameplay" class="screenshot" />
+  </section>
 
-  <!-- 🟢 NEW Ad Block (200x60) -->
-  <div style="position: absolute; top: 10px; right: 10px; z-index: 10;">
-    <ins class="adsbygoogle"
-         style="display:inline-block;width:200px;height:60px"
-         data-ad-client="ca-pub-7743589417689476"
-         data-ad-slot="3177910219"></ins>
-  </div>
+  <!-- Game Section -->
+  <section id="game" class="section hidden">
+    <div id="loading-screen" class="screen">
+      <h1>Loading...</h1>
+    </div>
+    <div id="game-container">
+      <div id="game-canvas">
+        <div id="background"></div>
+        <div id="bird" role="img" aria-label="Flappy Bird"></div>
+        <div id="pipe-container"></div>
+        <div id="ground"></div>
+      </div>
+      <div id="ui">
+        <h2 id="score" aria-live="polite">Score: 0</h2>
+        <h3 id="high-score">High Score: 0</h3>
+      </div>
+      <div id="start-screen" class="screen">
+        <h1>Flappy Bird Ultra</h1>
+        <p>Press Space, Click, or Tap to Start</p>
+        <button id="tutorial-btn">How to Play</button>
+      </div>
+      <div id="game-over-screen" class="screen hidden">
+        <h1>Game Over</h1>
+        <p id="final-score">Score: 0</p>
+        <button id="retry-btn">Retry</button>
+        <button id="menu-btn">Main Menu</button>
+        <button id="share-btn">Share Score</button>
+      </div>
+      <div id="pause-screen" class="screen hidden">
+        <h1>Paused</h1>
+        <p>Press Space, Click, or Tap to Resume</p>
+      </div>
+      <div id="tutorial-screen" class="screen hidden">
+        <h1>How to Play</h1>
+        <p>Tap or press Space to make the bird flap. Avoid pipes and score points by passing through gaps. Good luck!</p>
+        <button id="close-tutorial">Start Game</button>
+      </div>
+      <div id="settings-screen" class="screen hidden">
+        <h1>Settings</h1>
+        <label><input type="checkbox" id="sound-toggle" checked> Sound</label>
+        <label>Difficulty:
+          <select id="difficulty">
+            <option value="easy">Easy</option>
+            <option value="medium" selected>Medium</option>
+            <option value="hard">Hard</option>
+          </select>
+        </label>
+        <label>Theme:
+          <select id="theme">
+            <option value="day">Day</option>
+            <option value="night">Night</option>
+          </select>
+        </label>
+        <button id="close-settings">Save & Close</button>
+      </div>
+      <!-- Responsive Banner Ad -->
+      <div id="banner-ad">
+        <ins class="adsbygoogle"
+             style="display:block"
+             data-ad-client="ca-pub-7743589417689476"
+             data-ad-slot="3177910219"
+             data-ad-format="auto"
+             data-full-width-responsive="true"></ins>
+      </div>
+    </div>
+  </section>
 
-  <!-- ✅ SECOND FIXED SIDE AD (desktop only) -->
-  <div style="position: fixed; right: 0; top: 50%; transform: translateY(-50%); z-index: 9999; display: none;" id="side-ad">
-    <ins class="adsbygoogle"
-         style="display:block; width:160px; height:600px;"
-         data-ad-format="fluid"
-         data-ad-layout-key="-hh-7+2h-1m-4u"
-         data-ad-client="ca-pub-7743589417689476"
-         data-ad-slot="3877055853"></ins>
-  </div>
+  <!-- About Section -->
+  <section id="about" class="section hidden">
+    <h1>About Flappy Bird Ultra</h1>
+    <p>Flappy Bird Ultra is a modern take on the classic arcade game. Developed by [Your Name], our goal is to provide endless fun and challenge. Join millions of players worldwide!</p>
+  </section>
+
+  <!-- Blog Section -->
+  <section id="blog" class="section hidden">
+    <h1>Game Tips & Updates</h1>
+    <article>
+      <h2>Top 5 Tips to Master Flappy Bird Ultra</h2>
+      <p>Learn how to improve your score with these expert tips...</p>
+      <a href="#blog-post-1" class="btn">Read More</a>
+    </article>
+    <article>
+      <h2>New Update: Leaderboard & Themes</h2>
+      <p>Check out the latest features in Flappy Bird Ultra...</p>
+      <a href="#blog-post-2" class="btn">Read More</a>
+    </article>
+  </section>
+
+  <!-- Contact Section -->
+  <section id="contact" class="section hidden">
+    <h1>Contact Us</h1>
+    <p>Have questions or feedback? Reach out to us!</p>
+    <form id="contact-form">
+      <input type="text" placeholder="Name" required />
+      <input type="email" placeholder="Email" required />
+      <textarea placeholder="Message" required></textarea>
+      <button type="submit" class="btn">Send</button>
+    </form>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <p>&copy; 2025 Flappy Bird Ultra. All rights reserved.</p>
+    <ul class="footer-links">
+      <li><a href="/privacy-policy.html">Privacy Policy</a></li>
+      <li><a href="/terms.html">Terms of Use</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+    <div class="social-links">
+      <a href="#" aria-label="Facebook"><img src="images/facebook.png" alt="Facebook" /></a>
+      <a href="#" aria-label="Twitter"><img src="images/twitter.png" alt="Twitter" /></a>
+      <a href="#" aria-label="Instagram"><img src="images/instagram.png" alt="Instagram" /></a>
+    </div>
+  </footer>
 
   <script src="script.js"></script>
-
-  <!-- Initialize All Ads -->
   <script>
     (adsbygoogle = window.adsbygoogle || []).push({});
-    (adsbygoogle = window.adsbygoogle || []).push({});
-    (adsbygoogle = window.adsbygoogle || []).push({});
-    
-    // 💡 Show fixed ad only on wide screens (desktop)
-    if (window.innerWidth >= 1000) {
-      document.getElementById("side-ad").style.display = "block";
+  </script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/service-worker.js');
     }
   </script>
 </body>
